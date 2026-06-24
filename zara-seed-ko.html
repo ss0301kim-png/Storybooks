@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>자라와 마법의 씨앗</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#F0FDF4;--text:#1C3A1C;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text);min-height:100vh;overflow-x:hidden;word-break:keep-all;}
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;background:rgba(240,253,244,0.93);backdrop-filter:blur(8px);border-bottom:2px solid rgba(52,211,153,0.25);}
+  .topbar-title{font-family:'Noto Sans KR';font-weight:900;font-size:1rem;color:#059669;}
+  .lang-badge{background:#059669;color:#fff;border:none;padding:6px 16px;border-radius:20px;font-family:'Noto Sans KR';font-weight:700;font-size:0.85rem;cursor:pointer;text-decoration:none;}
+  .lang-badge:hover{background:#047857;}
+  #progress-bar{position:fixed;top:50px;left:0;height:4px;background:linear-gradient(90deg,#34D399,#6BCEFF,#FBBF24,#F472B6,#A78BFA);transition:width 0.4s ease;z-index:99;}
+  .book{max-width:760px;margin:0 auto;padding:70px 20px 100px;}
+  .page{display:none;animation:fadeIn 0.5s ease forwards;min-height:calc(100vh - 160px);flex-direction:column;justify-content:center;align-items:center;padding:20px 0;}
+  .page.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .cover-title{font-family:'Noto Sans KR';font-weight:900;font-size:clamp(1.8rem,6vw,3rem);text-align:center;background:linear-gradient(135deg,#34D399,#6BCEFF,#FBBF24,#F472B6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;line-height:1.35;margin-bottom:10px;}
+  .cover-sub{font-size:1.05rem;font-weight:700;color:#059669;text-align:center;margin-bottom:24px;}
+  .cover-badge{display:inline-block;background:linear-gradient(135deg,#059669,#34D399);color:#fff;font-family:'Noto Sans KR';font-weight:700;font-size:0.9rem;padding:7px 20px;border-radius:20px;margin-top:12px;}
+  .story-text{font-size:clamp(1.1rem,3vw,1.3rem);line-height:2;text-align:center;max-width:600px;margin:0 auto 20px;font-weight:700;}
+  .story-text em{font-style:normal;font-size:1.1em;font-weight:900;}
+  .page-heading{font-family:'Noto Sans KR';font-weight:900;font-size:clamp(1.5rem,5vw,2.2rem);text-align:center;margin-bottom:18px;}
+  .rainbow-text{font-family:'Noto Sans KR';font-weight:900;font-size:clamp(1.6rem,6vw,3rem);background:linear-gradient(90deg,#34D399,#6BCEFF,#FBBF24,#F472B6,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;text-align:center;}
+  .final-words{font-family:'Noto Sans KR';font-weight:900;font-size:clamp(1.2rem,4vw,1.8rem);text-align:center;line-height:2;}
+  .final-words span{display:block;}
+  .illo{width:100%;max-width:520px;margin:0 auto 24px;}
+  svg{width:100%;height:auto;}
+  .nav{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;justify-content:center;align-items:center;gap:16px;padding:14px 24px 18px;background:rgba(240,253,244,0.96);border-top:2px solid rgba(52,211,153,0.2);backdrop-filter:blur(8px);}
+  .btn{font-family:'Noto Sans KR';font-weight:700;font-size:1rem;padding:12px 28px;border-radius:30px;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+  .btn-prev{background:#ECFDF5;color:#aaa;}
+  .btn-prev:hover{background:#D1FAE5;}
+  .btn-next{background:linear-gradient(135deg,#059669,#34D399);color:#fff;}
+  .btn-next:hover{transform:scale(1.05);}
+  .btn-next:disabled{background:#ddd;color:#aaa;cursor:default;transform:none;pointer-events:none;}
+  .page-counter{font-family:'Noto Sans KR';font-size:1rem;color:#ccc;min-width:60px;text-align:center;}
+  .activity-box{background:#fff;border-radius:20px;padding:28px;box-shadow:0 8px 30px rgba(0,0,0,0.08);max-width:560px;margin:0 auto;width:100%;}
+  .activity-box h3{font-family:'Noto Sans KR';font-weight:900;font-size:1.3rem;margin-bottom:14px;color:#059669;}
+  .activity-box p,.activity-box li{font-size:1rem;line-height:1.9;color:#444;font-weight:700;}
+  .activity-box ol{padding-left:20px;}
+  .pledge-card{background:linear-gradient(135deg,#059669,#34D399);border-radius:16px;padding:20px 28px;text-align:center;max-width:560px;margin:20px auto;color:#fff;}
+  .pledge-card h3{font-family:'Noto Sans KR';font-weight:900;font-size:1.3rem;margin-bottom:6px;}
+  .pledge-card p{font-size:0.95rem;opacity:0.9;margin-bottom:14px;font-weight:700;}
+  .pledge-btn{display:inline-block;background:#fff;color:#059669;font-family:'Noto Sans KR';font-weight:900;font-size:1rem;padding:11px 26px;border-radius:30px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,0.15);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-title">🌱 자라와 마법의 씨앗</span>
+  <a href="zara-seed-en.html" class="lang-badge">English 🇺🇸</a>
+</div>
+<div id="progress-bar" style="width:10%"></div>
+<div class="book">
+
+<!-- PAGE 1: 표지 -->
+<div class="page active" id="page-1">
+  <div class="illo">
+    <svg viewBox="0 0 520 340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyGradKo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C7F2E8"/><stop offset="100%" stop-color="#E8F8F0"/></linearGradient>
+        <radialGradient id="glowSeedKo" cx="50%" cy="50%"><stop offset="0%" stop-color="rgba(251,191,36,0.7)"/><stop offset="100%" stop-color="rgba(251,191,36,0)"/></radialGradient>
+      </defs>
+      <rect width="520" height="340" fill="url(#skyGradKo)" rx="20"/>
+      <ellipse cx="260" cy="310" rx="250" ry="40" fill="#A5D6A7"/>
+      <rect x="0" y="290" width="520" height="50" fill="#81C784"/>
+      <g transform="translate(155,130)">
+        <circle cx="50" cy="42" r="30" fill="#C8A882"/>
+        <path d="M24 35 Q20 15 50 10 Q80 15 76 35 Q66 25 50 28 Q34 25 24 35Z" fill="#2C1A0E"/>
+        <path d="M24 40 Q10 60 12 80" fill="none" stroke="#2C1A0E" stroke-width="6" stroke-linecap="round"/>
+        <path d="M76 40 Q90 60 88 80" fill="none" stroke="#2C1A0E" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="36" cy="38" r="3.5" fill="#3D2C2C"/>
+        <circle cx="64" cy="38" r="3.5" fill="#3D2C2C"/>
+        <path d="M38 52 Q50 62 62 52" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M24 72 Q26 120 50 122 Q74 120 76 72 Z" fill="#059669"/>
+        <line x1="24" y1="80" x2="-15" y2="100" stroke="#C8A882" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="-18" cy="103" r="7" fill="#C8A882"/>
+        <line x1="76" y1="80" x2="115" y2="70" stroke="#C8A882" stroke-width="8" stroke-linecap="round"/>
+      </g>
+      <circle cx="134" cy="233" r="25" fill="url(#glowSeedKo)"/>
+      <ellipse cx="134" cy="233" rx="10" ry="14" fill="#FBBF24"/>
+      <ellipse cx="134" cy="233" rx="6" ry="9" fill="#FEF3C7"/>
+      <line x1="80" y1="280" x2="80" y2="255" stroke="#34D399" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="73" cy="252" rx="9" ry="6" fill="#34D399" transform="rotate(-20,73,252)"/>
+      <ellipse cx="87" cy="252" rx="9" ry="6" fill="#34D399" transform="rotate(20,87,252)"/>
+      <line x1="420" y1="280" x2="420" y2="255" stroke="#34D399" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="413" cy="252" rx="9" ry="6" fill="#34D399" transform="rotate(-20,413,252)"/>
+      <ellipse cx="427" cy="252" rx="9" ry="6" fill="#34D399" transform="rotate(20,427,252)"/>
+      <circle cx="420" cy="60" r="30" fill="#FBBF24" opacity="0.8"/>
+      <circle cx="420" cy="60" r="22" fill="#FEF3C7"/>
+      <line x1="420" y1="20" x2="420" y2="10" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+      <line x1="454" y1="36" x2="461" y2="29" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+      <line x1="460" y1="60" x2="470" y2="60" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <h1 class="cover-title">자라와 마법의 씨앗</h1>
+  <p class="cover-sub">자연과 지구를 소중히 여기는 이야기 🌍</p>
+  <p style="text-align:center;color:#aaa;font-size:0.9rem;margin-top:6px;">4–8세 · 10페이지 · 인터랙티브</p>
+  <span class="cover-badge">🌱 씨앗 하나가 세상을 바꿀 수 있어요</span>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page-2">
+  <div class="illo">
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="240" fill="#FFF9E6" rx="16"/>
+      <ellipse cx="260" cy="200" rx="240" ry="40" fill="#D2B48C"/>
+      <path d="M80 200 Q100 185 130 195 Q160 185 180 200" fill="none" stroke="#A0785A" stroke-width="2" opacity="0.7"/>
+      <path d="M310 198 Q340 183 380 196" fill="none" stroke="#A0785A" stroke-width="2" opacity="0.7"/>
+      <line x1="380" y1="200" x2="380" y2="100" stroke="#8B6347" stroke-width="8" stroke-linecap="round"/>
+      <line x1="380" y1="130" x2="340" y2="100" stroke="#8B6347" stroke-width="5" stroke-linecap="round"/>
+      <line x1="380" y1="120" x2="415" y2="95" stroke="#8B6347" stroke-width="5" stroke-linecap="round"/>
+      <g transform="translate(130,110)">
+        <circle cx="40" cy="35" r="25" fill="#C8A882"/>
+        <path d="M20 30 Q18 14 40 11 Q62 14 60 30 Q52 22 40 25 Q28 22 20 30Z" fill="#2C1A0E"/>
+        <circle cx="32" cy="33" r="3" fill="#3D2C2C"/>
+        <circle cx="48" cy="33" r="3" fill="#3D2C2C"/>
+        <path d="M33 43 Q40 48 47 43" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M18 55 Q20 90 40 92 Q60 90 62 55 Z" fill="#059669"/>
+        <line x1="18" y1="64" x2="-8" y2="80" stroke="#C8A882" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="-11" cy="83" r="6" fill="#C8A882"/>
+        <ellipse cx="-14" cy="83" rx="7" ry="9" fill="#FBBF24"/>
+        <ellipse cx="-14" cy="83" rx="4" ry="5.5" fill="#FEF9C3"/>
+      </g>
+      <circle cx="200" cy="55" r="4" fill="#059669" opacity="0.4"/>
+      <circle cx="210" cy="42" r="6" fill="#059669" opacity="0.4"/>
+      <ellipse cx="235" cy="28" rx="28" ry="20" fill="white" stroke="#059669" stroke-width="1.5"/>
+      <text x="235" y="23" text-anchor="middle" font-size="14" opacity="0.8">🌍</text>
+      <text x="235" y="38" text-anchor="middle" font-family="Noto Sans KR,sans-serif" font-weight="700" font-size="10" fill="#059669">씨앗 하나...</text>
+    </svg>
+  </div>
+  <p class="story-text">
+    자라는 땅이 바싹 마르고 갈라진 마을에 살았어요.<br>
+    나무는 앙상했고, 새들도 떠나버렸어요.<br><br>
+    어느 날 아침, 할머니가 자라의 손에 무언가를 올려놓았어요.<br>
+    작고 작은, <em style="color:#FBBF24">빛나는 씨앗</em> 하나.<br><br>
+    <em style="color:#059669">"사랑을 담아 심어,"</em> 할머니가 속삭였어요. <em style="color:#059669">"어떻게 되는지 봐."</em>
+  </p>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page-3">
+  <p class="page-heading" style="color:#34D399">🌿 숲이 나타났어요</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="forestGlowKo" cx="50%" cy="30%"><stop offset="0%" stop-color="#D1FAE5"/><stop offset="100%" stop-color="#F0FDF4"/></radialGradient></defs>
+      <rect width="520" height="250" fill="url(#forestGlowKo)" rx="16"/>
+      <line x1="260" y1="240" x2="260" y2="120" stroke="#5D4037" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="260" cy="100" r="60" fill="#22C55E" opacity="0.7"/>
+      <circle cx="230" cy="110" r="45" fill="#16A34A" opacity="0.8"/>
+      <circle cx="290" cy="105" r="50" fill="#4ADE80" opacity="0.7"/>
+      <circle cx="260" cy="80" r="42" fill="#86EFAC"/>
+      <line x1="140" y1="240" x2="140" y2="170" stroke="#5D4037" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="140" cy="150" r="32" fill="#22C55E" opacity="0.8"/>
+      <circle cx="140" cy="138" r="24" fill="#4ADE80" opacity="0.7"/>
+      <line x1="390" y1="240" x2="390" y2="165" stroke="#5D4037" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="390" cy="142" r="36" fill="#16A34A" opacity="0.7"/>
+      <circle cx="390" cy="130" r="26" fill="#86EFAC" opacity="0.8"/>
+      <ellipse cx="260" cy="238" rx="250" ry="22" fill="#A7F3D0"/>
+      <circle cx="95" cy="230" r="8" fill="#F9A8D4"/>
+      <circle cx="100" cy="222" r="6" fill="#FDE68A"/>
+      <path d="M170 90 Q176 84 182 90" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+      <path d="M320 80 Q326 74 332 80" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+      <g transform="translate(55,140)">
+        <circle cx="28" cy="24" r="20" fill="#C8A882"/>
+        <path d="M14 20 Q12 10 28 8 Q44 10 42 20 Q36 15 28 16 Q20 15 14 20Z" fill="#2C1A0E"/>
+        <ellipse cx="22" cy="22" rx="4" ry="5" fill="white"/>
+        <ellipse cx="34" cy="22" rx="4" ry="5" fill="white"/>
+        <circle cx="23" cy="23" r="2.5" fill="#3D2C2C"/>
+        <circle cx="35" cy="23" r="2.5" fill="#3D2C2C"/>
+        <ellipse cx="28" cy="31" rx="4" ry="3" fill="#3D2C2C" opacity="0.7"/>
+        <path d="M14 40 Q16 70 28 72 Q40 70 42 40 Z" fill="#059669"/>
+        <line x1="14" y1="48" x2="-5" y2="40" stroke="#C8A882" stroke-width="6" stroke-linecap="round"/>
+        <line x1="42" y1="48" x2="58" y2="35" stroke="#C8A882" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <text x="260" y="240" text-anchor="middle" font-family="Noto Sans KR,sans-serif" font-weight="900" font-size="12" fill="#059669" opacity="0.8">✨ 씨앗 하나에서 숲이 통째로! ✨</text>
+    </svg>
+  </div>
+  <p class="story-text">
+    자라는 마른 땅에 씨앗을 심었어요.<br>
+    매일 물을 주고, 밤엔 노래를 불러줬어요.<br><br>
+    그러던 어느 날 아침 — 자라는 숨을 멈췄어요.<br>
+    씨앗을 심은 자리에... <strong>숲 전체가 자라있었어요!</strong><br><br>
+    새가 노래했어요. 나비가 춤을 췄어요. 공기에서 달콤한 향기가 났어요. 🦋
+  </p>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page" id="page-4">
+  <p class="page-heading" style="color:#6BCEFF">🌊 바다의 세계</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="oceanKo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#BAE6FD"/><stop offset="40%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#0284C7"/></linearGradient></defs>
+      <rect width="520" height="240" fill="url(#oceanKo)" rx="16"/>
+      <path d="M0 80 Q65 65 130 80 Q195 95 260 80 Q325 65 390 80 Q455 95 520 80 L520 240 L0 240Z" fill="rgba(255,255,255,0.1)"/>
+      <path d="M80 200 Q90 170 100 200" fill="none" stroke="#F97316" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="90" cy="168" r="12" fill="#F97316"/>
+      <path d="M110 205 Q120 178 130 205" fill="none" stroke="#F472B6" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="120" cy="176" r="10" fill="#F472B6"/>
+      <ellipse cx="200" cy="130" rx="30" ry="18" fill="#FBBF24"/>
+      <path d="M230 130 L250 115 L250 145Z" fill="#FBBF24"/>
+      <circle cx="185" cy="127" r="4" fill="#fff"/>
+      <circle cx="184" cy="127" r="2" fill="#333"/>
+      <ellipse cx="320" cy="160" rx="20" ry="12" fill="#34D399"/>
+      <path d="M340 160 L355 150 L355 170Z" fill="#34D399"/>
+      <circle cx="310" cy="158" r="3" fill="#fff"/>
+      <path d="M270 110 Q285 100 285 120 Q285 140 270 145 Q260 148 255 140 Q250 130 260 125 Q270 120 270 110Z" fill="#F97316" opacity="0.8"/>
+      <circle cx="272" cy="108" r="8" fill="#F97316"/>
+      <ellipse cx="160" cy="180" rx="25" ry="18" fill="#22C55E"/>
+      <ellipse cx="160" cy="180" rx="18" ry="13" fill="#4ADE80"/>
+      <circle cx="145" cy="170" r="7" fill="#22C55E"/>
+      <g transform="translate(390,60)">
+        <circle cx="25" cy="20" r="18" fill="#C8A882"/>
+        <ellipse cx="25" cy="22" rx="14" ry="10" fill="#BAE6FD" opacity="0.6" stroke="#6BCEFF" stroke-width="2"/>
+        <path d="M10 35 Q12 65 25 67 Q38 65 40 35 Z" fill="#059669"/>
+      </g>
+      <circle cx="400" cy="50" r="5" fill="white" opacity="0.6"/>
+      <circle cx="408" cy="40" r="3.5" fill="white" opacity="0.5"/>
+    </svg>
+  </div>
+  <p class="story-text">
+    자라가 바닷가에서 씨앗을 높이 들자 —<br>
+    바다가 <em style="color:#6BCEFF">생명으로 가득 찼어요!</em><br><br>
+    형형색색의 산호. 무지개 같은 물고기.<br>
+    느릿느릿 헤엄치는 바다거북.<br><br>
+    <em style="color:#059669">"씨앗은 잊혀진 모든 보금자리를 기억하고 있어,"</em><br>
+    할머니가 미소 지었어요. 🌊
+  </p>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page" id="page-5">
+  <p class="page-heading" style="color:#FBBF24">🏜️ 사막이 꽃을 피웠어요</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="desertSkyKo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FEF3C7"/><stop offset="100%" stop-color="#FDE68A"/></linearGradient></defs>
+      <rect width="520" height="240" fill="url(#desertSkyKo)" rx="16"/>
+      <path d="M0 160 Q130 130 260 155 Q390 180 520 145 L520 240 L0 240Z" fill="#F59E0B"/>
+      <path d="M0 175 Q150 155 300 170 Q420 185 520 162 L520 240 L0 240Z" fill="#FBBF24"/>
+      <line x1="100" y1="155" x2="100" y2="90" stroke="#22C55E" stroke-width="10" stroke-linecap="round"/>
+      <line x1="100" y1="110" x2="70" y2="95" stroke="#22C55E" stroke-width="8" stroke-linecap="round"/>
+      <line x1="70" y1="95" x2="70" y2="75" stroke="#22C55E" stroke-width="7" stroke-linecap="round"/>
+      <line x1="100" y1="120" x2="130" y2="108" stroke="#22C55E" stroke-width="8" stroke-linecap="round"/>
+      <line x1="130" y1="108" x2="130" y2="92" stroke="#22C55E" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="100" cy="90" r="8" fill="#F472B6"/>
+      <circle cx="70" cy="75" r="6" fill="#F9A8D4"/>
+      <circle cx="130" cy="92" r="6" fill="#FDE68A"/>
+      <circle cx="200" cy="150" r="8" fill="#F9A8D4"/>
+      <circle cx="215" cy="143" r="6" fill="#FDE68A"/>
+      <circle cx="240" cy="148" r="7" fill="#93C5FD"/>
+      <circle cx="260" cy="142" r="9" fill="#F472B6"/>
+      <ellipse cx="310" cy="165" rx="22" ry="8" fill="#34D399"/>
+      <circle cx="332" cy="162" r="7" fill="#34D399"/>
+      <circle cx="335" cy="160" r="2" fill="#fff"/>
+      <g transform="translate(380,90)">
+        <circle cx="30" cy="25" r="22" fill="#C8A882"/>
+        <path d="M15 21 Q12 10 30 8 Q48 10 45 21 Q38 15 30 17 Q22 15 15 21Z" fill="#2C1A0E"/>
+        <circle cx="23" cy="24" r="3" fill="#3D2C2C"/>
+        <circle cx="37" cy="24" r="3" fill="#3D2C2C"/>
+        <path d="M23 34 Q30 40 37 34" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M15 46 Q17 80 30 82 Q43 80 45 46 Z" fill="#059669"/>
+        <line x1="15" y1="54" x2="-3" y2="50" stroke="#C8A882" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="-6" cy="50" r="5" fill="#C8A882"/>
+        <ellipse cx="-9" cy="50" rx="6" ry="8" fill="#FBBF24"/>
+        <ellipse cx="-9" cy="50" rx="3.5" ry="5" fill="#FEF9C3"/>
+      </g>
+    </svg>
+  </div>
+  <p class="story-text">
+    바싹 마른 사막에서 자라가 씨앗을 높이 들자<br>
+    모래가 반짝이더니 — <strong>꽃이 와르르 피어났어요!</strong><br><br>
+    분홍, 노랑, 파랑 — 사막이 본 적 없는 색깔들이었어요.<br>
+    도마뱀 한 마리가 고개를 내밀고 눈을 깜빡였어요.<br><br>
+    <em style="color:#FBBF24">"지구의 모든 곳이 꽃을 피울 자격이 있어요."</em> 🌸
+  </p>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page" id="page-6">
+  <p class="page-heading" style="color:#A78BFA">❄️ 북극이 깨어났어요</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="arcticSkyKo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EDE9FE"/><stop offset="50%" stop-color="#C4B5FD"/><stop offset="100%" stop-color="#DBEAFE"/></linearGradient></defs>
+      <rect width="520" height="240" fill="url(#arcticSkyKo)" rx="16"/>
+      <path d="M0 80 Q130 50 260 80 Q390 110 520 80" fill="none" stroke="#34D399" stroke-width="12" opacity="0.3"/>
+      <path d="M0 95 Q130 65 260 95 Q390 125 520 95" fill="none" stroke="#A78BFA" stroke-width="8" opacity="0.3"/>
+      <ellipse cx="260" cy="215" rx="240" ry="30" fill="white"/>
+      <ellipse cx="260" cy="210" rx="200" ry="20" fill="#DBEAFE"/>
+      <ellipse cx="180" cy="200" rx="40" ry="22" fill="white"/>
+      <circle cx="215" cy="188" r="20" fill="white"/>
+      <circle cx="225" cy="183" r="8" fill="white"/>
+      <circle cx="205" cy="183" r="8" fill="white"/>
+      <circle cx="222" cy="185" r="3" fill="#333"/>
+      <circle cx="208" cy="185" r="3" fill="#333"/>
+      <line x1="178" y1="210" x2="168" y2="228" stroke="white" stroke-width="7" stroke-linecap="round"/>
+      <line x1="196" y1="210" x2="200" y2="228" stroke="white" stroke-width="7" stroke-linecap="round"/>
+      <ellipse cx="140" cy="210" rx="22" ry="13" fill="white"/>
+      <circle cx="155" cy="200" r="12" fill="white"/>
+      <circle cx="149" cy="196" r="5" fill="white"/>
+      <circle cx="161" cy="196" r="5" fill="white"/>
+      <circle cx="150" cy="198" r="2" fill="#333"/>
+      <circle cx="160" cy="198" r="2" fill="#333"/>
+      <ellipse cx="360" cy="210" rx="15" ry="20" fill="#1e1e2e"/>
+      <ellipse cx="360" cy="205" rx="10" ry="12" fill="white"/>
+      <circle cx="360" cy="194" r="12" fill="#1e1e2e"/>
+      <ellipse cx="360" cy="195" rx="6" ry="5" fill="white"/>
+      <ellipse cx="360" cy="200" rx="5" ry="3" fill="#FBBF24"/>
+      <circle cx="357" cy="192" r="2" fill="white"/>
+      <circle cx="363" cy="192" r="2" fill="white"/>
+      <ellipse cx="380" cy="214" rx="9" ry="12" fill="#1e1e2e"/>
+      <ellipse cx="380" cy="213" rx="6" ry="7" fill="white"/>
+      <circle cx="380" cy="205" r="8" fill="#1e1e2e"/>
+      <text x="280" y="130" font-size="22" opacity="0.7">❄️</text>
+      <text x="310" y="95" font-size="16" opacity="0.5">🌸</text>
+      <g transform="translate(405,80)">
+        <circle cx="25" cy="20" r="16" fill="#C8A882" opacity="0.85"/>
+        <path d="M12 32 Q14 60 25 62 Q36 60 38 32 Z" fill="#059669" opacity="0.85"/>
+      </g>
+    </svg>
+  </div>
+  <p class="story-text">
+    세상의 꼭대기, 끝없이 펼쳐진 얼음 위에서<br>
+    자라가 씨앗에 입김을 불자 — <em style="color:#A78BFA">오로라가 일렁였어요!</em><br><br>
+    북극곰이 기지개를 켰어요. 펭귄들이 뒤뚱뒤뚱 나왔어요.<br>
+    북극은 <strong>자고 있었어요</strong>. 이제 깨어났어요.<br><br>
+    <em style="color:#A78BFA">"모든 동물은 안전한 보금자리를 가질 자격이 있어요."</em> 🐻‍❄️
+  </p>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page" id="page-7">
+  <p class="page-heading" style="color:#059669">🤝 자라가 가르쳐줬어요</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="240" fill="#ECFDF5" rx="16"/>
+      <ellipse cx="260" cy="230" rx="250" ry="25" fill="#A7F3D0"/>
+      <g transform="translate(60,90)">
+        <circle cx="28" cy="24" r="18" fill="#FFD8A8"/>
+        <path d="M14 20 Q12 10 28 8 Q44 10 42 20 Q36 15 28 16 Q20 15 14 20Z" fill="#8B4513"/>
+        <circle cx="22" cy="23" r="2.5" fill="#3D2C2C"/>
+        <circle cx="34" cy="23" r="2.5" fill="#3D2C2C"/>
+        <path d="M22 31 Q28 36 34 31" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M14 38 Q16 68 28 70 Q40 68 42 38 Z" fill="#F97316"/>
+        <line x1="14" y1="46" x2="-3" y2="55" stroke="#FFD8A8" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="-4" cy="58" r="5" fill="#FFD8A8"/>
+        <ellipse cx="-7" cy="58" rx="5" ry="6" fill="#FBBF24"/>
+      </g>
+      <g transform="translate(155,85)">
+        <circle cx="28" cy="24" r="18" fill="#FDBCB4"/>
+        <path d="M14 20 Q12 10 28 8 Q44 10 42 20 Q36 15 28 16 Q20 15 14 20Z" fill="#F06292"/>
+        <circle cx="22" cy="23" r="2.5" fill="#3D2C2C"/>
+        <circle cx="34" cy="23" r="2.5" fill="#3D2C2C"/>
+        <path d="M14 38 Q16 68 28 70 Q40 68 42 38 Z" fill="#A78BFA"/>
+        <line x1="42" y1="46" x2="58" y2="55" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="60" cy="58" r="5" fill="#FDBCB4"/>
+        <ellipse cx="63" cy="58" rx="5" ry="6" fill="#34D399"/>
+      </g>
+      <g transform="translate(230,70)">
+        <circle cx="30" cy="28" r="22" fill="#C8A882"/>
+        <path d="M15 24 Q12 12 30 10 Q48 12 45 24 Q38 17 30 19 Q22 17 15 24Z" fill="#2C1A0E"/>
+        <circle cx="23" cy="26" r="3" fill="#3D2C2C"/>
+        <circle cx="37" cy="26" r="3" fill="#3D2C2C"/>
+        <path d="M23 35 Q30 42 37 35" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M15 48 Q17 85 30 87 Q43 85 45 48 Z" fill="#059669"/>
+        <line x1="15" y1="56" x2="-5" y2="45" stroke="#C8A882" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="-8" cy="43" r="6" fill="#C8A882"/>
+        <ellipse cx="-11" cy="43" rx="6" ry="8" fill="#FBBF24"/>
+        <line x1="45" y1="56" x2="65" y2="45" stroke="#C8A882" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="68" cy="43" r="6" fill="#C8A882"/>
+        <ellipse cx="71" cy="43" rx="6" ry="8" fill="#FBBF24"/>
+      </g>
+      <g transform="translate(336,88)">
+        <circle cx="28" cy="24" r="18" fill="#C8A882"/>
+        <circle cx="22" cy="23" r="2.5" fill="#3D2C2C"/>
+        <circle cx="34" cy="23" r="2.5" fill="#3D2C2C"/>
+        <path d="M14 38 Q16 68 28 70 Q40 68 42 38 Z" fill="#6BCEFF"/>
+        <line x1="14" y1="46" x2="-3" y2="40" stroke="#C8A882" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="-4" cy="40" r="5" fill="#C8A882"/>
+        <ellipse cx="-7" cy="40" rx="5" ry="6" fill="#FBBF24"/>
+      </g>
+      <line x1="100" y1="220" x2="100" y2="195" stroke="#34D399" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="94" cy="193" rx="7" ry="5" fill="#34D399" transform="rotate(-20,94,193)"/>
+      <line x1="350" y1="218" x2="350" y2="194" stroke="#4ADE80" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="344" cy="192" rx="7" ry="5" fill="#4ADE80" transform="rotate(-20,344,192)"/>
+      <ellipse cx="356" cy="192" rx="7" ry="5" fill="#4ADE80" transform="rotate(20,356,192)"/>
+    </svg>
+  </div>
+  <p class="story-text">
+    <em style="color:#059669">"마법은 씨앗 안에 있는 게 아니었어,"</em> 자라가 깨달았어요.<br>
+    <em style="color:#059669">"마법은 내가 씨앗에 쏟은 정성이었어."</em><br><br>
+    자라는 아는 아이들을 모두 불러 모았어요.<br>
+    모두에게 씨앗을 하나씩 줬어요. <strong>각자의 씨앗. 각자의 세상.</strong><br><br>
+    "사랑을 담아 심어봐. 어떻게 되는지 봐." 🌱
+  </p>
+</div>
+
+<!-- PAGE 8 -->
+<div class="page" id="page-8">
+  <div class="illo">
+    <svg viewBox="0 0 520 220" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="earthGlowKo" cx="50%" cy="50%"><stop offset="0%" stop-color="#D1FAE5"/><stop offset="60%" stop-color="#A7F3D0"/><stop offset="100%" stop-color="#6EE7B7"/></radialGradient></defs>
+      <rect width="520" height="220" fill="#ECFDF5" rx="16"/>
+      <circle cx="260" cy="110" r="80" fill="url(#earthGlowKo)"/>
+      <path d="M220 70 Q235 60 250 70 Q260 80 255 95 Q245 105 230 100 Q215 90 220 70Z" fill="#22C55E" opacity="0.9"/>
+      <path d="M265 65 Q285 58 295 75 Q300 90 285 98 Q268 100 265 85 Q262 75 265 65Z" fill="#16A34A" opacity="0.8"/>
+      <path d="M230 108 Q248 100 258 115 Q262 128 248 135 Q232 138 225 125 Q218 112 230 108Z" fill="#22C55E" opacity="0.8"/>
+      <path d="M268 108 Q285 105 292 118 Q296 130 285 138 Q270 142 263 130 Q256 118 268 108Z" fill="#16A34A" opacity="0.7"/>
+      <circle cx="240" cy="80" r="4" fill="#C8A882"/>
+      <circle cx="280" cy="75" r="3.5" fill="#FFD8A8"/>
+      <circle cx="245" cy="120" r="3.5" fill="#FDBCB4"/>
+      <circle cx="280" cy="122" r="3" fill="#C8A882"/>
+      <text x="245" y="78" font-size="8">🌲</text>
+      <text x="282" y="72" font-size="8">🌴</text>
+      <text x="190" y="50" font-size="16" opacity="0.6">💚</text>
+      <text x="320" y="48" font-size="14" opacity="0.6">🌍</text>
+      <text x="180" y="160" font-size="16" opacity="0.6">✨</text>
+      <text x="325" y="162" font-size="14" opacity="0.6">🌱</text>
+      <text x="260" y="200" text-anchor="middle" font-family="Noto Sans KR,sans-serif" font-weight="900" font-size="14" fill="#059669">지구 전체가 우리의 정원이에요.</text>
+    </svg>
+  </div>
+  <div class="rainbow-text" style="font-size:clamp(1.4rem,5vw,2.4rem)">씨앗 하나. 세상 하나. 🌍</div>
+  <p class="story-text" style="margin-top:14px">
+    그리고 지구 모든 곳에서,<br>
+    아이들이 사랑을 담아 씨앗을 심은 곳마다 —<br>
+    <strong>아름다운 무언가가 자라났어요</strong>.<br><br>
+    지구 전체가 우리의 정원이에요.<br>
+    <em style="color:#059669">우리 모두는 정원사예요.</em>
+  </p>
+</div>
+
+<!-- PAGE 9 -->
+<div class="page" id="page-9">
+  <div class="illo">
+    <svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="200" fill="#F0FDF4" rx="16"/>
+      <path d="M0 160 Q130 120 260 140 Q390 160 520 130 L520 200 L0 200Z" fill="#A7F3D0"/>
+      <path d="M0 170 Q130 145 260 155 Q390 165 520 148 L520 200 L0 200Z" fill="#6EE7B7"/>
+      <line x1="70" y1="165" x2="70" y2="110" stroke="#5D4037" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="70" cy="93" r="25" fill="#22C55E"/>
+      <line x1="150" y1="168" x2="150" y2="125" stroke="#5D4037" stroke-width="6" stroke-linecap="round"/>
+      <path d="M150 125 Q165 108 178 118" fill="none" stroke="#22C55E" stroke-width="4" stroke-linecap="round"/>
+      <path d="M150 125 Q135 108 122 118" fill="none" stroke="#22C55E" stroke-width="4" stroke-linecap="round"/>
+      <line x1="270" y1="162" x2="270" y2="105" stroke="#5D4037" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="270" cy="87" r="30" fill="#4ADE80"/>
+      <circle cx="256" cy="93" r="22" fill="#22C55E"/>
+      <line x1="380" y1="165" x2="380" y2="115" stroke="#5D4037" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="380" cy="96" r="26" fill="#FBCFE8"/>
+      <circle cx="368" cy="100" r="18" fill="#F9A8D4"/>
+      <line x1="460" y1="165" x2="460" y2="120" stroke="#5D4037" stroke-width="6" stroke-linecap="round"/>
+      <path d="M435 160 L460 115 L485 160Z" fill="#166534"/>
+      <path d="M440 145 L460 108 L480 145Z" fill="#15803D"/>
+      <text x="260" y="190" text-anchor="middle" font-family="Noto Sans KR,sans-serif" font-weight="900" font-size="13" fill="#059669">모든 나무도 처음엔 작은 씨앗이었어요.</text>
+    </svg>
+  </div>
+  <div class="final-words">
+    <span style="color:#059669">큰 나무도 처음엔 작은 씨앗이었어요. 🌱</span>
+    <span style="color:#34D399">위대한 숲도 사랑 한 번에서 시작됐어요. 🌲</span>
+    <span style="color:#FBBF24">너에게도 멋진 것을 키울 힘이 있어요. 🌟</span>
+    <span style="background:linear-gradient(90deg,#34D399,#6BCEFF,#FBBF24,#F472B6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-size:1.8rem;">오늘 네 씨앗을 심어봐. 🌍</span>
+    <span style="font-size:2.2rem">💚 끝 💚</span>
+  </div>
+</div>
+
+<!-- PAGE 10: 활동 -->
+<div class="page" id="page-10">
+  <div class="activity-box">
+    <h3>🌱 나만의 세상을 키워봐요!</h3>
+    <p>자라는 씨앗을 심어 세상을 바꿨어요. 너는 무엇을 키울 건가요?</p>
+    <div style="margin:14px 0">
+      <p><strong>그리거나 써봐요:</strong></p>
+      <p>내게 마법의 씨앗이 있다면, 나는 이런 걸 키울 거예요:</p>
+    </div>
+    <textarea style="width:100%;margin-top:8px;padding:12px 16px;border:2px dashed #34D399;border-radius:12px;font-family:'Noto Sans KR';font-size:1rem;background:#F0FDF4;color:#1C3A1C;resize:vertical;min-height:80px;outline:none;font-weight:700;" placeholder="온갖 동물들이 사는 숲... / 꽃이 가득한 정원... / 물고기가 넘치는 바다..."></textarea>
+    <h3 style="margin-top:20px">🌍 이야기해봐요</h3>
+    <ol>
+      <li>가장 좋아하는 동물의 서식지는 어디인가요?</li>
+      <li>이번 주에 지구를 위해 할 수 있는 일은?</li>
+      <li>'지구의 정원사'가 된다는 건 어떤 의미일까요?</li>
+      <li>이번 주에 진짜 씨앗을 심어보세요!</li>
+    </ol>
+  </div>
+  <div class="pledge-card">
+    <h3>🌱 나의 지구 약속</h3>
+    <p>나는 작은 씨앗 하나하나로<br>지구를 소중히 돌볼게요. 💚</p>
+    <a href="#" class="pledge-btn">5권 모두 보기 ✨</a>
+  </div>
+</div>
+
+</div>
+<nav class="nav">
+  <button class="btn btn-prev" id="prevBtn" onclick="changePage(-1)">← 이전</button>
+  <span class="page-counter" id="counter">1 / 10</span>
+  <button class="btn btn-next" id="nextBtn" onclick="changePage(1)">다음 →</button>
+</nav>
+<script>
+  let current=1;const total=10;
+  function changePage(d){
+    document.getElementById('page-'+current).classList.remove('active');
+    current=Math.max(1,Math.min(total,current+d));
+    document.getElementById('page-'+current).classList.add('active');
+    document.getElementById('progress-bar').style.width=((current/total)*100)+'%';
+    document.getElementById('counter').textContent=current+' / '+total;
+    document.getElementById('prevBtn').style.opacity=current===1?'0.3':'1';
+    document.getElementById('nextBtn').textContent=current===total?'🎉 끝!':'다음 →';
+    document.getElementById('nextBtn').disabled=current===total;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changePage(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changePage(-1);});
+  let sx=0;document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)changePage(dx<0?1:-1);});
+  document.getElementById('prevBtn').style.opacity='0.3';
+</script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Robot Who Wanted to Feel</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#F0F4FF;--text:#2C2C4E;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);min-height:100vh;overflow-x:hidden;}
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;background:rgba(240,244,255,0.93);backdrop-filter:blur(8px);border-bottom:2px solid rgba(100,120,255,0.2);}
+  .topbar-title{font-family:'Fredoka One';font-size:1.05rem;color:#5B6AFF;}
+  .lang-badge{background:#5B6AFF;color:#fff;border:none;padding:6px 16px;border-radius:20px;font-family:'Fredoka One';font-size:0.9rem;cursor:pointer;text-decoration:none;}
+  .lang-badge:hover{background:#4452dd;}
+  #progress-bar{position:fixed;top:50px;left:0;height:4px;background:linear-gradient(90deg,#5B6AFF,#A78BFA,#F472B6,#34D399);transition:width 0.4s ease;z-index:99;}
+  .book{max-width:760px;margin:0 auto;padding:70px 20px 100px;}
+  .page{display:none;animation:fadeIn 0.5s ease forwards;min-height:calc(100vh - 160px);flex-direction:column;justify-content:center;align-items:center;padding:20px 0;}
+  .page.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .cover-title{font-family:'Fredoka One';font-size:clamp(1.9rem,6vw,3.2rem);text-align:center;background:linear-gradient(135deg,#5B6AFF,#A78BFA,#F472B6,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;line-height:1.25;margin-bottom:10px;}
+  .cover-sub{font-size:1.05rem;font-weight:700;color:#5B6AFF;text-align:center;margin-bottom:24px;}
+  .cover-badge{display:inline-block;background:linear-gradient(135deg,#5B6AFF,#A78BFA);color:#fff;font-family:'Fredoka One';font-size:0.9rem;padding:7px 20px;border-radius:20px;margin-top:12px;}
+  .story-text{font-size:clamp(1.1rem,3vw,1.35rem);line-height:1.9;text-align:center;max-width:600px;margin:0 auto 20px;font-weight:600;}
+  .story-text em{font-style:normal;font-family:'Fredoka One';font-size:1.2em;}
+  .page-heading{font-family:'Fredoka One';font-size:clamp(1.5rem,5vw,2.2rem);text-align:center;margin-bottom:18px;}
+  .rainbow-text{font-family:'Fredoka One';font-size:clamp(1.8rem,7vw,3.5rem);background:linear-gradient(90deg,#5B6AFF,#A78BFA,#F472B6,#FBBF24,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;text-align:center;animation:shimmer 2s ease infinite alternate;}
+  @keyframes shimmer{to{filter:brightness(1.2)}}
+  .final-words{font-family:'Fredoka One';font-size:clamp(1.3rem,4vw,1.9rem);text-align:center;line-height:1.8;}
+  .final-words span{display:block;}
+  .illo{width:100%;max-width:520px;margin:0 auto 24px;}
+  svg{width:100%;height:auto;}
+  .nav{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;justify-content:center;align-items:center;gap:16px;padding:14px 24px 18px;background:rgba(240,244,255,0.96);border-top:2px solid rgba(100,120,255,0.2);backdrop-filter:blur(8px);}
+  .btn{font-family:'Fredoka One';font-size:1rem;padding:12px 28px;border-radius:30px;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+  .btn-prev{background:#EEF0FF;color:#aaa;}
+  .btn-prev:hover{background:#dde0ff;}
+  .btn-next{background:linear-gradient(135deg,#5B6AFF,#A78BFA);color:#fff;}
+  .btn-next:hover{transform:scale(1.05);}
+  .btn-next:disabled{background:#ddd;color:#aaa;cursor:default;transform:none;pointer-events:none;}
+  .page-counter{font-family:'Fredoka One';font-size:1rem;color:#ccc;min-width:60px;text-align:center;}
+  .activity-box{background:#fff;border-radius:20px;padding:28px;box-shadow:0 8px 30px rgba(0,0,0,0.08);max-width:560px;margin:0 auto;width:100%;}
+  .activity-box h3{font-family:'Fredoka One';font-size:1.35rem;margin-bottom:14px;color:#5B6AFF;}
+  .activity-box p,.activity-box li{font-size:1rem;line-height:1.8;color:#444;}
+  .activity-box ol{padding-left:20px;}
+  .jar-input{width:100%;margin-top:12px;padding:12px 16px;border:2px dashed #A78BFA;border-radius:12px;font-family:'Nunito';font-size:1rem;background:#F5F3FF;color:#2C2C4E;resize:vertical;min-height:80px;outline:none;font-weight:600;}
+  .jar-input:focus{border-color:#5B6AFF;}
+  .purchase-strip{background:linear-gradient(135deg,#5B6AFF,#A78BFA);border-radius:16px;padding:20px 28px;text-align:center;max-width:560px;margin:20px auto;color:#fff;}
+  .purchase-strip h3{font-family:'Fredoka One';font-size:1.35rem;margin-bottom:6px;}
+  .purchase-strip p{font-size:0.95rem;opacity:0.9;margin-bottom:14px;}
+  .buy-btn{display:inline-block;background:#fff;color:#5B6AFF;font-family:'Fredoka One';font-size:1rem;padding:11px 26px;border-radius:30px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,0.15);transition:transform 0.2s;}
+  .buy-btn:hover{transform:scale(1.05);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-title">🤖 The Robot Who Wanted to Feel</span>
+  <a href="robot-feel-ko.html" class="lang-badge">한국어 🇰🇷</a>
+</div>
+<div id="progress-bar" style="width:8%"></div>
+<div class="book">
+
+<!-- PAGE 1: COVER -->
+<div class="page active" id="page-1">
+  <div class="illo">
+    <svg viewBox="0 0 520 360" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="rBg" cx="50%" cy="40%"><stop offset="0%" stop-color="#EEF0FF"/><stop offset="100%" stop-color="#DDD6FE"/></radialGradient>
+        <radialGradient id="rGlow" cx="50%" cy="50%"><stop offset="0%" stop-color="rgba(91,106,255,0.3)"/><stop offset="100%" stop-color="rgba(91,106,255,0)"/></radialGradient>
+      </defs>
+      <rect width="520" height="360" fill="url(#rBg)" rx="20"/>
+      <!-- Stars -->
+      <circle cx="60" cy="50" r="3" fill="#A78BFA" opacity="0.6"/><circle cx="450" cy="70" r="2" fill="#F472B6" opacity="0.5"/><circle cx="480" cy="30" r="3" fill="#34D399" opacity="0.5"/><circle cx="80" cy="100" r="2" fill="#FBBF24" opacity="0.6"/><circle cx="420" cy="120" r="2.5" fill="#A78BFA" opacity="0.4"/>
+      <!-- Circuit pattern on ground -->
+      <rect x="0" y="300" width="520" height="60" fill="#D1D5F0" rx="0"/>
+      <line x1="80" y1="310" x2="80" y2="340" stroke="#A78BFA" stroke-width="2" opacity="0.5"/>
+      <line x1="80" y1="325" x2="120" y2="325" stroke="#A78BFA" stroke-width="2" opacity="0.5"/>
+      <circle cx="120" cy="325" r="4" fill="#5B6AFF" opacity="0.6"/>
+      <line x1="350" y1="310" x2="350" y2="340" stroke="#F472B6" stroke-width="2" opacity="0.5"/>
+      <line x1="350" y1="325" x2="400" y2="325" stroke="#F472B6" stroke-width="2" opacity="0.5"/>
+      <circle cx="400" cy="325" r="4" fill="#F472B6" opacity="0.6"/>
+      <!-- Bolt glow -->
+      <circle cx="260" cy="200" r="80" fill="url(#rGlow)"/>
+      <!-- Bolt body -->
+      <rect x="215" y="200" width="90" height="100" rx="12" fill="#607D8B"/>
+      <rect x="220" y="205" width="80" height="90" rx="10" fill="#78909C"/>
+      <!-- LED chest panel -->
+      <rect x="235" y="225" width="50" height="30" rx="6" fill="#37474F"/>
+      <circle cx="248" cy="240" r="7" fill="#FFD93D" opacity="0.9"/>
+      <circle cx="260" cy="240" r="7" fill="#FF6B6B" opacity="0.4"/>
+      <circle cx="272" cy="240" r="7" fill="#6BCEFF" opacity="0.4"/>
+      <!-- Bolt legs -->
+      <rect x="225" y="298" width="25" height="30" rx="6" fill="#546E7A"/>
+      <rect x="270" y="298" width="25" height="30" rx="6" fill="#546E7A"/>
+      <rect x="222" y="325" width="30" height="12" rx="5" fill="#455A64"/>
+      <rect x="267" y="325" width="30" height="12" rx="5" fill="#455A64"/>
+      <!-- Bolt arms -->
+      <rect x="175" y="205" width="40" height="18" rx="9" fill="#546E7A"/>
+      <rect x="168" y="208" width="14" height="14" rx="7" fill="#455A64"/>
+      <rect x="305" y="205" width="40" height="18" rx="9" fill="#546E7A"/>
+      <rect x="318" y="208" width="14" height="14" rx="7" fill="#455A64"/>
+      <!-- Bolt head -->
+      <rect x="220" y="145" width="80" height="62" rx="14" fill="#607D8B"/>
+      <rect x="226" y="151" width="68" height="50" rx="12" fill="#78909C"/>
+      <!-- Antenna -->
+      <line x1="260" y1="145" x2="260" y2="120" stroke="#546E7A" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="260" cy="115" r="8" fill="#5B6AFF"/>
+      <circle cx="260" cy="115" r="4" fill="#EEF0FF"/>
+      <!-- Eyes (LED screens) -->
+      <rect x="234" y="163" width="22" height="18" rx="5" fill="#1a1a3e"/>
+      <rect x="264" y="163" width="22" height="18" rx="5" fill="#1a1a3e"/>
+      <!-- Confused eyes - question marks -->
+      <text x="245" y="177" text-anchor="middle" font-size="12" fill="#FFD93D" font-family="Fredoka One, cursive">?</text>
+      <text x="275" y="177" text-anchor="middle" font-size="12" fill="#FFD93D" font-family="Fredoka One, cursive">?</text>
+      <!-- Straight mouth (neutral) -->
+      <rect x="244" y="186" width="32" height="5" rx="2.5" fill="#455A64"/>
+      <!-- Lily (small girl) next to Bolt -->
+      <g transform="translate(345,215)">
+        <circle cx="35" cy="30" r="22" fill="#FDBCB4"/>
+        <path d="M20 25 Q22 10 35 8 Q48 10 50 25 Q42 18 35 20 Q28 18 20 25Z" fill="#F06292"/>
+        <circle cx="28" cy="27" r="2.5" fill="#3D2C2C"/>
+        <circle cx="42" cy="27" r="2.5" fill="#3D2C2C"/>
+        <path d="M29 36 Q35 42 41 36" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+        <ellipse cx="28" cy="32" rx="5" ry="3" fill="#FFB5B5" opacity="0.6"/>
+        <ellipse cx="42" cy="32" rx="5" ry="3" fill="#FFB5B5" opacity="0.6"/>
+        <path d="M18 50 Q20 84 35 86 Q50 84 52 50 Z" fill="#F472B6"/>
+        <line x1="18" y1="60" x2="-5" y2="55" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="-7" cy="53" r="5" fill="#FDBCB4"/>
+        <line x1="52" y1="60" x2="70" y2="65" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <!-- Speech bubble from Bolt -->
+      <rect x="90" y="100" width="130" height="50" rx="18" fill="white" stroke="#A78BFA" stroke-width="2"/>
+      <path d="M200 150 L215 165 L195 152" fill="white" stroke="#A78BFA" stroke-width="2"/>
+      <text x="155" y="122" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700" font-size="13" fill="#5B6AFF">What is a</text>
+      <text x="155" y="140" text-anchor="middle" font-family="Fredoka One,cursive" font-size="16" fill="#A78BFA">FEELING?</text>
+    </svg>
+  </div>
+  <h1 class="cover-title">The Robot Who<br>Wanted to Feel</h1>
+  <p class="cover-sub">A Story About Emotions &amp; Friendship 🤖💛</p>
+  <p style="text-align:center;color:#aaa;font-size:0.9rem;margin-top:6px;">Ages 4–8 · 12 Pages · Interactive</p>
+  <span class="cover-badge">⚡ For every heart, big or small</span>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page-2">
+  <div class="illo">
+    <svg viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="260" fill="#EEF0FF" rx="16"/>
+      <!-- Circuit lines as background -->
+      <line x1="0" y1="130" x2="520" y2="130" stroke="#D1D5F0" stroke-width="2"/>
+      <line x1="130" y1="0" x2="130" y2="260" stroke="#D1D5F0" stroke-width="2"/>
+      <line x1="390" y1="0" x2="390" y2="260" stroke="#D1D5F0" stroke-width="2"/>
+      <circle cx="130" cy="130" r="5" fill="#A78BFA" opacity="0.4"/>
+      <circle cx="390" cy="130" r="5" fill="#A78BFA" opacity="0.4"/>
+      <!-- Small Bolt standing, looking at humans -->
+      <g transform="translate(30,80)">
+        <rect x="26" y="60" width="48" height="56" rx="8" fill="#607D8B"/>
+        <rect x="10" y="65" width="22" height="10" rx="5" fill="#546E7A"/>
+        <rect x="68" y="65" width="22" height="10" rx="5" fill="#546E7A"/>
+        <rect x="28" y="114" width="14" height="18" rx="5" fill="#546E7A"/>
+        <rect x="58" y="114" width="14" height="18" rx="5" fill="#546E7A"/>
+        <rect x="26" y="22" width="48" height="40" rx="10" fill="#607D8B"/>
+        <rect x="30" y="26" width="14" height="11" rx="4" fill="#1a1a3e"/>
+        <rect x="56" y="26" width="14" height="11" rx="4" fill="#1a1a3e"/>
+        <text x="37" y="35" text-anchor="middle" font-size="8" fill="#FFD93D">?</text>
+        <text x="63" y="35" text-anchor="middle" font-size="8" fill="#FFD93D">?</text>
+        <line x1="50" y1="22" x2="50" y2="8" stroke="#546E7A" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="4" r="5" fill="#5B6AFF"/>
+        <rect x="34" y="80" width="32" height="18" rx="4" fill="#37474F"/>
+        <circle cx="42" cy="89" r="5" fill="#FFD93D" opacity="0.8"/>
+        <circle cx="50" cy="89" r="5" fill="#6BCEFF" opacity="0.4"/>
+        <circle cx="58" cy="89" r="5" fill="#FF6B6B" opacity="0.4"/>
+      </g>
+      <!-- Human child 1: Laughing -->
+      <g transform="translate(155,90)">
+        <circle cx="35" cy="28" r="20" fill="#FFD8A8"/>
+        <path d="M20 24 Q22 11 35 9 Q48 11 50 24 Q42 18 35 20 Q28 18 20 24Z" fill="#8B4513"/>
+        <circle cx="28" cy="26" r="2.5" fill="#3D2C2C"/>
+        <circle cx="42" cy="26" r="2.5" fill="#3D2C2C"/>
+        <path d="M27 33 Q35 42 43 33" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="28" cy="30" rx="5" ry="3" fill="#FFB5B5" opacity="0.5"/>
+        <ellipse cx="42" cy="30" rx="5" ry="3" fill="#FFB5B5" opacity="0.5"/>
+        <path d="M18 48 Q20 80 35 82 Q50 80 52 48 Z" fill="#34D399"/>
+        <text x="35" y="-8" text-anchor="middle" font-size="18">😂</text>
+      </g>
+      <!-- Human child 2: Crying -->
+      <g transform="translate(270,90)">
+        <circle cx="35" cy="28" r="20" fill="#FDBCB4"/>
+        <path d="M20 24 Q22 11 35 9 Q48 11 50 24 Q42 18 35 20 Q28 18 20 24Z" fill="#5C3317"/>
+        <circle cx="28" cy="26" r="2.5" fill="#3D2C2C"/>
+        <circle cx="42" cy="26" r="2.5" fill="#3D2C2C"/>
+        <path d="M28 34 Q35 30 42 34" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+        <ellipse cx="42" cy="38" rx="3" ry="5" fill="#6BCEFF"/>
+        <ellipse cx="29" cy="36" rx="2.5" ry="4" fill="#6BCEFF"/>
+        <path d="M18 48 Q20 80 35 82 Q50 80 52 48 Z" fill="#6BCEFF"/>
+        <text x="35" y="-8" text-anchor="middle" font-size="18">😢</text>
+      </g>
+      <!-- Human child 3: Hugging a teddy -->
+      <g transform="translate(380,85)">
+        <circle cx="35" cy="30" r="22" fill="#C8A882"/>
+        <path d="M17 25 Q15 13 35 10 Q55 13 53 25 Q45 19 35 21 Q25 19 17 25Z" fill="#2C1A0E"/>
+        <circle cx="28" cy="28" r="2.5" fill="#3D2C2C"/>
+        <circle cx="42" cy="28" r="2.5" fill="#3D2C2C"/>
+        <path d="M28 36 Q35 42 42 36" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M17 52 Q19 85 35 87 Q51 85 53 52 Z" fill="#FBBF24"/>
+        <!-- Teddy bear -->
+        <circle cx="58" cy="55" r="14" fill="#D2691E"/>
+        <circle cx="50" cy="48" r="7" fill="#CD853F"/>
+        <circle cx="66" cy="48" r="7" fill="#CD853F"/>
+        <circle cx="55" cy="55" r="3" fill="#8B4513"/>
+        <circle cx="61" cy="55" r="3" fill="#8B4513"/>
+        <line x1="52" y1="60" x2="74" y2="55" stroke="#C8A882" stroke-width="6" stroke-linecap="round"/>
+        <text x="35" y="-5" text-anchor="middle" font-size="18">🥰</text>
+      </g>
+      <!-- Bolt question marks -->
+      <text x="100" y="70" font-size="22" opacity="0.7">❓</text>
+      <text x="105" y="105" font-size="18" opacity="0.5">❓</text>
+    </svg>
+  </div>
+  <p class="story-text">
+    Bolt was made of gears, wires, and blinking lights.<br>
+    He could calculate, compute, and count to a million.<br><br>
+    But when he watched the children laugh and cry and hug,<br>
+    Bolt felt <strong>something</strong> he couldn't name.<br>
+    <em style="color:#5B6AFF">"What... are FEELINGS?"</em> he wondered.
+  </p>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page-3">
+  <p class="page-heading" style="color:#FFD93D">💛 What is HAPPY?</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="240" fill="#FFFDE7" rx="16"/>
+      <circle cx="260" cy="80" r="50" fill="#FFD93D" opacity="0.2"/>
+      <circle cx="260" cy="80" r="35" fill="#FFD93D" opacity="0.4"/>
+      <circle cx="260" cy="80" r="22" fill="#FFD93D"/>
+      <circle cx="254" cy="76" r="3" fill="#FF9A3C"/>
+      <circle cx="266" cy="76" r="3" fill="#FF9A3C"/>
+      <path d="M252 83 Q260 89 268 83" fill="none" stroke="#FF9A3C" stroke-width="2" stroke-linecap="round"/>
+      <!-- Lily dancing -->
+      <g transform="translate(75,80)">
+        <circle cx="35" cy="28" r="22" fill="#FDBCB4"/>
+        <path d="M20 24 Q22 10 35 8 Q48 10 50 24 Q42 18 35 20 Q28 18 20 24Z" fill="#F06292"/>
+        <circle cx="28" cy="26" r="2.5" fill="#3D2C2C"/>
+        <circle cx="42" cy="26" r="2.5" fill="#3D2C2C"/>
+        <path d="M28 35 Q35 42 42 35" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M18 48 Q20 82 35 84 Q50 82 52 48 Z" fill="#F472B6"/>
+        <line x1="18" y1="56" x2="-3" y2="40" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+        <line x1="52" y1="56" x2="73" y2="40" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <!-- Bolt watching, eyes turning yellow -->
+      <g transform="translate(340,80)">
+        <rect x="26" y="55" width="48" height="56" rx="8" fill="#607D8B"/>
+        <rect x="10" y="62" width="22" height="10" rx="5" fill="#546E7A"/>
+        <rect x="68" y="62" width="22" height="10" rx="5" fill="#546E7A"/>
+        <rect x="28" y="109" width="14" height="18" rx="5" fill="#546E7A"/>
+        <rect x="58" y="109" width="14" height="18" rx="5" fill="#546E7A"/>
+        <rect x="26" y="18" width="48" height="40" rx="10" fill="#607D8B"/>
+        <rect x="30" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <rect x="56" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <!-- Eyes glowing yellow! -->
+        <circle cx="37" cy="28" r="5" fill="#FFD93D"/>
+        <circle cx="63" cy="28" r="5" fill="#FFD93D"/>
+        <circle cx="38" cy="28" r="2" fill="white" opacity="0.7"/>
+        <circle cx="64" cy="28" r="2" fill="white" opacity="0.7"/>
+        <line x1="50" y1="18" x2="50" y2="4" stroke="#546E7A" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="0" r="5" fill="#FFD93D"/>
+        <rect x="34" y="72" width="32" height="18" rx="4" fill="#37474F"/>
+        <circle cx="42" cy="81" r="6" fill="#FFD93D"/>
+        <circle cx="50" cy="81" r="6" fill="#FFD93D" opacity="0.6"/>
+        <circle cx="58" cy="81" r="6" fill="#FFD93D" opacity="0.3"/>
+        <!-- Surprised mouth -->
+        <path d="M36 46 Q50 52 64 46" fill="none" stroke="#455A64" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+      <text x="185" y="60" font-size="20">🎵</text>
+      <text x="165" y="85" font-size="16">♪</text>
+      <text x="205" y="45" font-size="14">✨</text>
+    </svg>
+  </div>
+  <p class="story-text">
+    Bolt asked his friend Lily: <em style="color:#5B6AFF">"What is HAPPY?"</em><br><br>
+    Lily spun around and laughed out loud.<br>
+    "Happy feels like <strong>sunshine inside your chest!</strong>"<br><br>
+    Bolt's lights flickered — and turned <em style="color:#FFD93D">YELLOW</em>. ✨
+  </p>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page" id="page-4">
+  <p class="page-heading" style="color:#6BCEFF">💙 What is SAD?</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 230" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="230" fill="#E3F2FD" rx="16"/>
+      <!-- Wilting flower -->
+      <line x1="180" y1="200" x2="180" y2="100" stroke="#81C784" stroke-width="5" stroke-linecap="round"/>
+      <path d="M180 100 Q155 70 145 85 Q160 100 180 100Z" fill="#A5D6A7"/>
+      <path d="M180 100 Q205 70 215 85 Q200 100 180 100Z" fill="#A5D6A7"/>
+      <circle cx="180" cy="98" r="12" fill="#FFCC80"/>
+      <!-- Drooping head -->
+      <path d="M168 90 Q165 75 170 70 Q175 65 180 68" fill="none" stroke="#81C784" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+      <!-- Rain drops -->
+      <path d="M130 30 Q133 20 136 30 Q133 40 130 30Z" fill="#6BCEFF" opacity="0.7"/>
+      <path d="M160 50 Q163 40 166 50 Q163 60 160 50Z" fill="#6BCEFF" opacity="0.7"/>
+      <path d="M200 25 Q203 15 206 25 Q203 35 200 25Z" fill="#6BCEFF" opacity="0.7"/>
+      <path d="M235 45 Q238 35 241 45 Q238 55 235 45Z" fill="#6BCEFF" opacity="0.7"/>
+      <!-- Gray cloud -->
+      <ellipse cx="185" cy="55" rx="55" ry="22" fill="#90A4AE" opacity="0.6"/>
+      <ellipse cx="155" cy="60" rx="35" ry="18" fill="#B0BEC5" opacity="0.6"/>
+      <!-- Lily sad -->
+      <g transform="translate(265,90)">
+        <circle cx="35" cy="28" r="22" fill="#FDBCB4"/>
+        <path d="M20 24 Q22 10 35 8 Q48 10 50 24 Q42 18 35 20 Q28 18 20 24Z" fill="#F06292"/>
+        <circle cx="28" cy="26" r="2.5" fill="#3D2C2C"/>
+        <circle cx="42" cy="26" r="2.5" fill="#3D2C2C"/>
+        <path d="M28 34 Q35 30 42 34" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+        <ellipse cx="43" cy="38" rx="3" ry="4" fill="#6BCEFF"/>
+        <path d="M18 48 Q20 82 35 84 Q50 82 52 48 Z" fill="#F472B6"/>
+      </g>
+      <!-- Bolt eyes blue -->
+      <g transform="translate(370,80)">
+        <rect x="26" y="55" width="48" height="56" rx="8" fill="#607D8B"/>
+        <rect x="10" y="62" width="22" height="10" rx="5" fill="#546E7A"/>
+        <rect x="68" y="62" width="22" height="10" rx="5" fill="#546E7A"/>
+        <rect x="28" y="109" width="14" height="18" rx="5" fill="#546E7A"/>
+        <rect x="58" y="109" width="14" height="18" rx="5" fill="#546E7A"/>
+        <rect x="26" y="18" width="48" height="40" rx="10" fill="#607D8B"/>
+        <rect x="30" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <rect x="56" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <circle cx="37" cy="28" r="5" fill="#6BCEFF"/>
+        <circle cx="63" cy="28" r="5" fill="#6BCEFF"/>
+        <line x1="50" y1="18" x2="50" y2="4" stroke="#546E7A" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="0" r="5" fill="#6BCEFF"/>
+        <rect x="34" y="72" width="32" height="18" rx="4" fill="#37474F"/>
+        <circle cx="42" cy="81" r="6" fill="#FFD93D" opacity="0.6"/>
+        <circle cx="50" cy="81" r="6" fill="#6BCEFF"/>
+        <circle cx="58" cy="81" r="6" fill="#6BCEFF" opacity="0.5"/>
+        <path d="M36 46 Q50 42 64 46" fill="none" stroke="#455A64" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Bolt tear -->
+        <ellipse cx="63" cy="38" rx="3" ry="4" fill="#6BCEFF" opacity="0.8"/>
+      </g>
+    </svg>
+  </div>
+  <p class="story-text">
+    <em style="color:#5B6AFF">"What is SAD?"</em> asked Bolt.<br><br>
+    Lily showed him a flower that had wilted in the rain.<br>
+    "Sad feels like <strong>rain inside your heart</strong>," she said softly.<br><br>
+    A single blue drop rolled down Bolt's metal cheek.<br>
+    His lights turned <em style="color:#6BCEFF">BLUE</em>. 💧
+  </p>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page" id="page-5">
+  <p class="page-heading" style="color:#FF6B6B">❤️ What is ANGRY?</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 230" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="230" fill="#FFF3E0" rx="16"/>
+      <!-- Fallen ice cream -->
+      <line x1="230" y1="180" x2="240" y2="130" stroke="#BCAAA4" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="245" cy="128" r="22" fill="#FF8A65"/>
+      <circle cx="248" cy="123" r="22" fill="#F48FB1"/>
+      <circle cx="240" cy="120" r="22" fill="#80DEEA"/>
+      <!-- Splat on ground -->
+      <ellipse cx="230" cy="183" rx="32" ry="10" fill="#F48FB1" opacity="0.7"/>
+      <circle cx="215" cy="188" r="8" fill="#FF8A65" opacity="0.6"/>
+      <circle cx="248" cy="190" r="6" fill="#80DEEA" opacity="0.6"/>
+      <!-- Lily angry -->
+      <g transform="translate(270,80)">
+        <circle cx="35" cy="28" r="22" fill="#FDBCB4"/>
+        <path d="M20 24 Q22 10 35 8 Q48 10 50 24 Q42 18 35 20 Q28 18 20 24Z" fill="#F06292"/>
+        <circle cx="28" cy="26" r="2.5" fill="#3D2C2C"/>
+        <circle cx="42" cy="26" r="2.5" fill="#3D2C2C"/>
+        <path d="M22 18 L32 24" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M38 24 L48 18" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M28 35 Q35 31 42 35" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="28" cy="32" rx="6" ry="4" fill="#FF6B6B" opacity="0.5"/>
+        <ellipse cx="42" cy="32" rx="6" ry="4" fill="#FF6B6B" opacity="0.5"/>
+        <path d="M18 48 Q20 82 35 84 Q50 82 52 48 Z" fill="#F472B6"/>
+        <line x1="18" y1="56" x2="0" y2="44" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+        <line x1="52" y1="56" x2="70" y2="44" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <!-- Bolt eyes red -->
+      <g transform="translate(370,80)">
+        <rect x="26" y="55" width="48" height="56" rx="8" fill="#607D8B"/>
+        <rect x="10" y="62" width="22" height="10" rx="5" fill="#546E7A"/>
+        <rect x="68" y="62" width="22" height="10" rx="5" fill="#546E7A"/>
+        <rect x="28" y="109" width="14" height="18" rx="5" fill="#546E7A"/>
+        <rect x="58" y="109" width="14" height="18" rx="5" fill="#546E7A"/>
+        <rect x="26" y="18" width="48" height="40" rx="10" fill="#607D8B"/>
+        <rect x="30" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <rect x="56" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <circle cx="37" cy="28" r="5" fill="#FF6B6B"/>
+        <circle cx="63" cy="28" r="5" fill="#FF6B6B"/>
+        <line x1="50" y1="18" x2="50" y2="4" stroke="#546E7A" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="0" r="5" fill="#FF6B6B"/>
+        <rect x="34" y="72" width="32" height="18" rx="4" fill="#37474F"/>
+        <circle cx="42" cy="81" r="6" fill="#FFD93D" opacity="0.5"/>
+        <circle cx="50" cy="81" r="6" fill="#6BCEFF" opacity="0.5"/>
+        <circle cx="58" cy="81" r="6" fill="#FF6B6B"/>
+        <!-- Angry brows -->
+        <path d="M27 20 L37 25" stroke="#FF6B6B" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M53 25 L63 20" stroke="#FF6B6B" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+      <text x="165" y="100" font-size="22" opacity="0.8">💢</text>
+      <text x="155" y="75" font-size="16" opacity="0.6">😤</text>
+    </svg>
+  </div>
+  <p class="story-text">
+    Their ice cream fell — <em style="color:#FF6B6B">SPLAT!</em> — on the ground.<br>
+    Lily's face went red. <em style="color:#FF6B6B">"I'm SO ANGRY!"</em> she cried.<br><br>
+    "Angry feels like <strong>fire inside your belly</strong>," she explained.<br><br>
+    Bolt's lights turned <em style="color:#FF6B6B">RED</em>. He felt it too. 🔥
+  </p>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page" id="page-6">
+  <p class="page-heading" style="color:#A78BFA">💜 What is SCARED?</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 230" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="230" fill="#1a0a2e" rx="16"/>
+      <text x="260" y="55" text-anchor="middle" font-size="42" opacity="0.8">⚡</text>
+      <ellipse cx="260" cy="85" rx="120" ry="20" fill="#A78BFA" opacity="0.15"/>
+      <!-- Dark storm -->
+      <ellipse cx="120" cy="50" rx="70" ry="28" fill="#37474F" opacity="0.8"/>
+      <ellipse cx="380" cy="55" rx="80" ry="30" fill="#455A64" opacity="0.8"/>
+      <!-- Lily scared -->
+      <g transform="translate(155,120)">
+        <circle cx="35" cy="28" r="22" fill="#FDBCB4"/>
+        <path d="M20 24 Q22 10 35 8 Q48 10 50 24 Q42 18 35 20 Q28 18 20 24Z" fill="#F06292"/>
+        <ellipse cx="28" cy="26" rx="5" ry="6" fill="white"/>
+        <ellipse cx="42" cy="26" rx="5" ry="6" fill="white"/>
+        <circle cx="29" cy="27" r="3" fill="#3D2C2C"/>
+        <circle cx="43" cy="27" r="3" fill="#3D2C2C"/>
+        <ellipse cx="35" cy="37" rx="5" ry="4" fill="#3D2C2C" opacity="0.8"/>
+        <path d="M18 48 Q20 82 35 84 Q50 82 52 48 Z" fill="#F472B6"/>
+        <line x1="18" y1="58" x2="0" y2="70" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+        <line x1="52" y1="58" x2="70" y2="70" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <!-- Bolt eyes purple, holding Lily's hand -->
+      <g transform="translate(290,115)">
+        <rect x="26" y="55" width="48" height="56" rx="8" fill="#546E7A"/>
+        <rect x="10" y="62" width="22" height="10" rx="5" fill="#455A64"/>
+        <rect x="68" y="62" width="22" height="10" rx="5" fill="#455A64"/>
+        <rect x="28" y="109" width="14" height="18" rx="5" fill="#455A64"/>
+        <rect x="58" y="109" width="14" height="18" rx="5" fill="#455A64"/>
+        <rect x="26" y="18" width="48" height="40" rx="10" fill="#546E7A"/>
+        <rect x="30" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <rect x="56" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <circle cx="37" cy="28" r="5" fill="#A78BFA"/>
+        <circle cx="63" cy="28" r="5" fill="#A78BFA"/>
+        <circle cx="37" cy="28" r="2" fill="white" opacity="0.5"/>
+        <circle cx="63" cy="28" r="2" fill="white" opacity="0.5"/>
+        <line x1="50" y1="18" x2="50" y2="4" stroke="#455A64" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="0" r="5" fill="#A78BFA"/>
+        <rect x="34" y="72" width="32" height="18" rx="4" fill="#2d3748"/>
+        <circle cx="42" cy="81" r="5" fill="#FFD93D" opacity="0.4"/>
+        <circle cx="50" cy="81" r="5" fill="#6BCEFF" opacity="0.4"/>
+        <circle cx="58" cy="81" r="5" fill="#A78BFA"/>
+        <!-- Holding Lily hand -->
+        <rect x="-5" y="62" width="16" height="10" rx="5" fill="#546E7A"/>
+      </g>
+      <circle cx="80" cy="160" r="3" fill="#A78BFA" opacity="0.5"/>
+      <circle cx="440" cy="180" r="3" fill="#A78BFA" opacity="0.5"/>
+    </svg>
+  </div>
+  <p class="story-text">
+    Thunder crashed. Lightning flashed.<br>
+    Lily grabbed Bolt's arm and held on tight.<br>
+    <em style="color:#A78BFA">"Scared feels like your heart wants to run away,"</em> she whispered.<br><br>
+    Bolt's lights turned <em style="color:#A78BFA">PURPLE</em>.<br>
+    He held Lily's hand a little tighter. 🌩️
+  </p>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page" id="page-7">
+  <p class="page-heading" style="color:#34D399">💚 What is BRAVE?</p>
+  <div class="illo">
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="braveGlow" cx="50%" cy="50%"><stop offset="0%" stop-color="rgba(52,211,153,0.4)"/><stop offset="100%" stop-color="rgba(52,211,153,0)"/></radialGradient></defs>
+      <rect width="520" height="240" fill="#F0FDF4" rx="16"/>
+      <circle cx="260" cy="120" r="90" fill="url(#braveGlow)"/>
+      <!-- High bridge / scary height representation -->
+      <rect x="0" y="180" width="520" height="60" fill="#A5D6A7"/>
+      <rect x="80" y="80" width="15" height="100" fill="#78909C"/>
+      <rect x="420" y="80" width="15" height="100" fill="#78909C"/>
+      <line x1="88" y1="80" x2="428" y2="80" stroke="#90A4AE" stroke-width="6"/>
+      <!-- Little bridge with gap -->
+      <rect x="180" y="176" width="70" height="10" rx="4" fill="#78909C"/>
+      <rect x="270" y="176" width="70" height="10" rx="4" fill="#78909C"/>
+      <!-- Gap in bridge (scary!) -->
+      <text x="255" y="180" font-size="18" opacity="0.5">⬇️</text>
+      <!-- Lily crossing bravely with Bolt -->
+      <g transform="translate(165, 90)">
+        <circle cx="35" cy="28" r="22" fill="#FDBCB4"/>
+        <path d="M20 24 Q22 10 35 8 Q48 10 50 24 Q42 18 35 20 Q28 18 20 24Z" fill="#F06292"/>
+        <circle cx="28" cy="26" r="3" fill="#3D2C2C"/>
+        <circle cx="42" cy="26" r="3" fill="#3D2C2C"/>
+        <path d="M28 34 Q35 42 42 34" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M18 48 Q20 82 35 84 Q50 82 52 48 Z" fill="#F472B6"/>
+        <line x1="52" y1="58" x2="76" y2="58" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="78" cy="58" r="6" fill="#FDBCB4"/>
+        <line x1="18" y1="58" x2="-2" y2="64" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+        <!-- Cape/scarf -->
+        <path d="M18 52 Q0 65 5 85 Q18 75 35 80 Z" fill="#FF6B6B" opacity="0.8"/>
+      </g>
+      <!-- Bolt green lights, step forward -->
+      <g transform="translate(270, 90)">
+        <rect x="26" y="55" width="48" height="56" rx="8" fill="#546E7A"/>
+        <rect x="10" y="62" width="22" height="10" rx="5" fill="#455A64"/>
+        <rect x="68" y="62" width="22" height="10" rx="5" fill="#455A64"/>
+        <rect x="28" y="109" width="14" height="18" rx="5" fill="#455A64"/>
+        <rect x="60" y="109" width="14" height="20" rx="5" fill="#455A64"/>
+        <rect x="26" y="18" width="48" height="40" rx="10" fill="#546E7A"/>
+        <rect x="30" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <rect x="56" y="22" width="14" height="12" rx="4" fill="#1a1a3e"/>
+        <circle cx="37" cy="28" r="5" fill="#34D399"/>
+        <circle cx="63" cy="28" r="5" fill="#34D399"/>
+        <circle cx="37" cy="28" r="2" fill="white" opacity="0.6"/>
+        <circle cx="63" cy="28" r="2" fill="white" opacity="0.6"/>
+        <line x1="50" y1="18" x2="50" y2="4" stroke="#455A64" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="0" r="5" fill="#34D399"/>
+        <rect x="34" y="72" width="32" height="18" rx="4" fill="#2d3748"/>
+        <circle cx="42" cy="81" r="5" fill="#34D399"/>
+        <circle cx="50" cy="81" r="5" fill="#34D399" opacity="0.7"/>
+        <circle cx="58" cy="81" r="5" fill="#34D399" opacity="0.4"/>
+        <path d="M34 46 Q50 53 66 46" fill="none" stroke="#546E7A" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- hand holding Lily -->
+        <rect x="-5" y="62" width="16" height="10" rx="5" fill="#607D8B"/>
+      </g>
+      <text x="410" y="120" font-size="24" opacity="0.8">⭐</text>
+      <text x="80" y="110" font-size="20" opacity="0.7">✨</text>
+    </svg>
+  </div>
+  <p class="story-text">
+    Lily showed Bolt the bridge she was afraid to cross.<br>
+    "Watch," she said. She took one step. Then another.<br><br>
+    <em style="color:#34D399">"Brave doesn't mean not scared,"</em> said Lily.<br>
+    <em style="color:#34D399">"It means doing it ANYWAY."</em><br><br>
+    Bolt's lights turned <em style="color:#34D399">GREEN</em>. He stepped forward too. 🌟
+  </p>
+</div>
+
+<!-- PAGE 8 -->
+<div class="page" id="page-8">
+  <div class="illo">
+    <svg viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="rainbowBoltGlow" cx="50%" cy="50%"><stop offset="0%" stop-color="rgba(255,255,200,0.9)"/><stop offset="100%" stop-color="rgba(255,220,80,0)"/></radialGradient></defs>
+      <rect width="520" height="260" fill="#1C1C3E" rx="16"/>
+      <!-- Stars -->
+      <circle cx="50" cy="40" r="2" fill="white" opacity="0.6"/><circle cx="100" cy="25" r="1.5" fill="white" opacity="0.4"/><circle cx="430" cy="35" r="2.5" fill="white" opacity="0.5"/><circle cx="480" cy="60" r="1.5" fill="white" opacity="0.4"/>
+      <circle cx="260" cy="130" r="100" fill="url(#rainbowBoltGlow)"/>
+      <!-- BIG Bolt glowing rainbow -->
+      <g transform="translate(175,50)">
+        <rect x="26" y="100" width="98" height="110" rx="14" fill="#455A64"/>
+        <rect x="10" y="110" width="30" height="18" rx="9" fill="#37474F"/>
+        <rect x="100" y="110" width="30" height="18" rx="9" fill="#37474F"/>
+        <rect x="36" y="208" width="24" height="32" rx="8" fill="#37474F"/>
+        <rect x="78" y="208" width="24" height="32" rx="8" fill="#37474F"/>
+        <rect x="30" y="208" width="28" height="16" rx="8" fill="#455A64"/>
+        <rect x="78" y="208" width="28" height="16" rx="8" fill="#455A64"/>
+        <rect x="26" y="30" width="98" height="76" rx="16" fill="#455A64"/>
+        <rect x="36" y="40" width="26" height="20" rx="6" fill="#1a1a3e"/>
+        <rect x="80" y="40" width="26" height="20" rx="6" fill="#1a1a3e"/>
+        <!-- RAINBOW EYES! -->
+        <circle cx="49" cy="50" r="9" fill="#FFD93D"/>
+        <circle cx="93" cy="50" r="9" fill="#FFD93D"/>
+        <!-- Pupils with star -->
+        <circle cx="50" cy="50" r="4" fill="white"/>
+        <circle cx="94" cy="50" r="4" fill="white"/>
+        <text x="47" y="53" text-anchor="middle" font-size="8">⭐</text>
+        <text x="91" y="53" text-anchor="middle" font-size="8">⭐</text>
+        <!-- Happy mouth! -->
+        <path d="M44 82 Q75 95 106 82" fill="none" stroke="#78909C" stroke-width="4" stroke-linecap="round"/>
+        <line x1="75" y1="30" x2="75" y2="8" stroke="#37474F" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="75" cy="2" r="8" fill="#FFD93D"/>
+        <circle cx="75" cy="2" r="4" fill="white"/>
+        <!-- RAINBOW chest panel! -->
+        <rect x="44" y="120" width="62" height="40" rx="8" fill="#1a1a3e"/>
+        <rect x="48" y="126" width="54" height="8" rx="3" fill="#FF6B6B" opacity="0.9"/>
+        <rect x="48" y="137" width="54" height="8" rx="3" fill="#FFD93D" opacity="0.9"/>
+        <rect x="48" y="148" width="54" height="8" rx="3" fill="#34D399" opacity="0.9"/>
+      </g>
+      <!-- Sparkles everywhere -->
+      <text x="90" y="130" font-size="22" opacity="0.9">✨</text>
+      <text x="390" y="120" font-size="22" opacity="0.9">✨</text>
+      <text x="110" y="200" font-size="18" opacity="0.7">⭐</text>
+      <text x="380" y="200" font-size="18" opacity="0.7">⭐</text>
+      <text x="55" y="180" font-size="16" opacity="0.6">💫</text>
+      <text x="440" y="170" font-size="16" opacity="0.6">💫</text>
+      <text x="260" y="248" text-anchor="middle" font-family="Fredoka One,cursive" font-size="20" fill="#FFD93D">All the feelings... ALL AT ONCE.</text>
+    </svg>
+  </div>
+  <div class="rainbow-text" style="font-size:clamp(1.6rem,6vw,3rem)">RAINBOW! ✨</div>
+  <p class="story-text" style="margin-top:14px">
+    Bolt looked at his chest panel.<br>
+    Yellow. Blue. Red. Purple. Green.<br>
+    All the feelings — glowing together.<br><br>
+    <em style="color:#5B6AFF">"Is this... what it feels like to be ALIVE?"</em>
+  </p>
+</div>
+
+<!-- PAGE 9 -->
+<div class="page" id="page-9">
+  <div class="illo">
+    <svg viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="260" fill="#FFF9F0" rx="16"/>
+      <!-- Warm sunset background -->
+      <ellipse cx="260" cy="240" rx="280" ry="80" fill="#FFE0CC" opacity="0.5"/>
+      <!-- Bolt and Lily hugging! -->
+      <!-- Lily -->
+      <g transform="translate(140, 80)">
+        <circle cx="40" cy="35" r="26" fill="#FDBCB4"/>
+        <path d="M22 29 Q24 13 40 11 Q56 13 58 29 Q48 21 40 23 Q32 21 22 29Z" fill="#F06292"/>
+        <circle cx="32" cy="32" r="3" fill="#3D2C2C"/>
+        <circle cx="48" cy="32" r="3" fill="#3D2C2C"/>
+        <path d="M32 42 Q40 50 48 42" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="32" cy="38" rx="6" ry="4" fill="#FFB5B5" opacity="0.6"/>
+        <ellipse cx="48" cy="38" rx="6" ry="4" fill="#FFB5B5" opacity="0.6"/>
+        <path d="M22 60 Q24 100 40 102 Q56 100 58 60 Z" fill="#F472B6"/>
+        <!-- Both arms around Bolt -->
+        <line x1="58" y1="70" x2="95" y2="70" stroke="#FDBCB4" stroke-width="8" stroke-linecap="round"/>
+        <line x1="22" y1="70" x2="0" y2="80" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <!-- Bolt being hugged -->
+      <g transform="translate(255, 80)">
+        <rect x="26" y="60" width="68" height="80" rx="12" fill="#607D8B"/>
+        <rect x="10" y="68" width="20" height="14" rx="7" fill="#546E7A"/>
+        <rect x="80" y="68" width="20" height="14" rx="7" fill="#546E7A"/>
+        <rect x="36" y="138" width="18" height="24" rx="7" fill="#546E7A"/>
+        <rect x="60" y="138" width="18" height="24" rx="7" fill="#546E7A"/>
+        <rect x="26" y="20" width="68" height="44" rx="14" fill="#607D8B"/>
+        <rect x="32" y="26" width="18" height="14" rx="5" fill="#1a1a3e"/>
+        <rect x="60" y="26" width="18" height="14" rx="5" fill="#1a1a3e"/>
+        <!-- Grateful golden eyes -->
+        <circle cx="41" cy="33" r="6" fill="#FFD93D"/>
+        <circle cx="69" cy="33" r="6" fill="#FFD93D"/>
+        <circle cx="42" cy="33" r="2.5" fill="white" opacity="0.7"/>
+        <circle cx="70" cy="33" r="2.5" fill="white" opacity="0.7"/>
+        <!-- Big smile -->
+        <path d="M36 52 Q60 62 84 52" fill="none" stroke="#455A64" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="60" y1="20" x2="60" y2="5" stroke="#546E7A" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="60" cy="0" r="7" fill="#FFD93D"/>
+        <!-- Rainbow panel -->
+        <rect x="40" y="80" width="48" height="38" rx="7" fill="#1a1a3e"/>
+        <rect x="44" y="85" width="40" height="6" rx="2.5" fill="#FFD93D" opacity="0.95"/>
+        <rect x="44" y="94" width="40" height="6" rx="2.5" fill="#34D399" opacity="0.95"/>
+        <rect x="44" y="103" width="40" height="6" rx="2.5" fill="#F472B6" opacity="0.95"/>
+        <rect x="44" y="112" width="40" height="6" rx="2.5" fill="#6BCEFF" opacity="0.95"/>
+      </g>
+      <!-- Floating hearts -->
+      <text x="130" y="75" font-size="20" opacity="0.8">💛</text>
+      <text x="360" y="70" font-size="18" opacity="0.7">✨</text>
+      <text x="170" y="55" font-size="16" opacity="0.6">🤍</text>
+      <text x="340" y="55" font-size="16" opacity="0.6">💙</text>
+    </svg>
+  </div>
+  <p class="story-text">
+    Bolt turned to Lily.<br>
+    <em style="color:#5B6AFF">"Lily... I think I feel something right now."</em><br><br>
+    "What?" she asked.<br><br>
+    Bolt's lights glowed the warmest gold he'd ever shone.<br>
+    <em style="color:#FFD93D">"I feel... GRATEFUL. For you."</em><br><br>
+    And then — for the very first time — <strong>Bolt gave a hug</strong>. 🤖💛
+  </p>
+</div>
+
+<!-- PAGE 10: FINAL -->
+<div class="page" id="page-10">
+  <div class="illo">
+    <svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="200" fill="#F0F4FF" rx="16"/>
+      <path d="M30 180 Q260 60 490 180" fill="none" stroke="#FFD93D" stroke-width="8" opacity="0.5" stroke-linecap="round"/>
+      <path d="M45 185 Q260 75 475 185" fill="none" stroke="#34D399" stroke-width="8" opacity="0.5" stroke-linecap="round"/>
+      <path d="M60 188 Q260 90 460 188" fill="none" stroke="#F472B6" stroke-width="8" opacity="0.5" stroke-linecap="round"/>
+      <path d="M75 190 Q260 105 445 190" fill="none" stroke="#6BCEFF" stroke-width="8" opacity="0.5" stroke-linecap="round"/>
+      <path d="M90 192 Q260 120 430 192" fill="none" stroke="#A78BFA" stroke-width="8" opacity="0.5" stroke-linecap="round"/>
+      <!-- Small Bolt and Lily silhouette -->
+      <ellipse cx="260" cy="175" rx="80" ry="15" fill="#D1D5F0"/>
+      <rect x="238" y="135" width="32" height="40" rx="6" fill="#607D8B" opacity="0.8"/>
+      <rect x="240" y="118" width="28" height="20" rx="6" fill="#607D8B" opacity="0.8"/>
+      <circle cx="286" cy="138" r="16" fill="#FDBCB4" opacity="0.8"/>
+      <path d="M274 147 Q290 153 302 147" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+      <text x="260" y="48" text-anchor="middle" font-family="Fredoka One,cursive" font-size="19" fill="#5B6AFF">You don't need gears to feel.</text>
+      <text x="260" y="75" text-anchor="middle" font-family="Fredoka One,cursive" font-size="17" fill="#A78BFA">All you need is an open heart.</text>
+    </svg>
+  </div>
+  <div class="final-words">
+    <span style="color:#5B6AFF">You don't need gears to feel. 🤖</span>
+    <span style="color:#A78BFA">You don't need circuits to care. 💜</span>
+    <span style="color:#34D399">All you need is an open heart —</span>
+    <span style="background:linear-gradient(90deg,#5B6AFF,#A78BFA,#F472B6,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-size:2.1rem;">and someone to share it with.</span>
+    <span style="font-size:2.2rem">💛 THE END 💛</span>
+  </div>
+</div>
+
+<!-- PAGE 11: ACTIVITY -->
+<div class="page" id="page-11">
+  <div class="activity-box">
+    <h3>⚡ Bolt's Feelings Dashboard</h3>
+    <p>What color are YOUR lights today? Circle or write the feelings you felt!</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin:14px 0">
+      <span style="background:#FFD93D;padding:7px 18px;border-radius:20px;color:#fff;font-family:'Fredoka One';font-size:1.1rem">😊 Happy</span>
+      <span style="background:#6BCEFF;padding:7px 18px;border-radius:20px;color:#fff;font-family:'Fredoka One';font-size:1.1rem">😢 Sad</span>
+      <span style="background:#FF6B6B;padding:7px 18px;border-radius:20px;color:#fff;font-family:'Fredoka One';font-size:1.1rem">😠 Angry</span>
+      <span style="background:#A78BFA;padding:7px 18px;border-radius:20px;color:#fff;font-family:'Fredoka One';font-size:1.1rem">😨 Scared</span>
+      <span style="background:#34D399;padding:7px 18px;border-radius:20px;color:#fff;font-family:'Fredoka One';font-size:1.1rem">🦁 Brave</span>
+      <span style="background:#F472B6;padding:7px 18px;border-radius:20px;color:#fff;font-family:'Fredoka One';font-size:1.1rem">🤗 Grateful</span>
+    </div>
+    <textarea class="jar-input" placeholder="Today my lights were... because..."></textarea>
+    <h3 style="margin-top:20px">🤖 Talk About It</h3>
+    <ol>
+      <li>If YOUR feelings had colors, what would they be?</li>
+      <li>When did you last feel grateful? For who?</li>
+      <li>What is one feeling you find hard to talk about?</li>
+      <li>Draw Bolt with your favorite feeling color!</li>
+    </ol>
+  </div>
+  <div class="purchase-strip">
+    <h3>🤖 Loved Bolt's story?</h3>
+    <p>Get all 5 storybooks — English &amp; Korean bundle!<br>한국어 버전도 있어요 🇰🇷</p>
+    <a href="#" class="buy-btn">Get the Full Bundle ✨</a>
+  </div>
+</div>
+
+</div>
+<nav class="nav">
+  <button class="btn btn-prev" id="prevBtn" onclick="changePage(-1)">← Back</button>
+  <span class="page-counter" id="counter">1 / 11</span>
+  <button class="btn btn-next" id="nextBtn" onclick="changePage(1)">Next →</button>
+</nav>
+<script>
+  let current=1;const total=11;
+  function changePage(d){
+    document.getElementById('page-'+current).classList.remove('active');
+    current=Math.max(1,Math.min(total,current+d));
+    document.getElementById('page-'+current).classList.add('active');
+    document.getElementById('progress-bar').style.width=((current/total)*100)+'%';
+    document.getElementById('counter').textContent=current+' / '+total;
+    document.getElementById('prevBtn').style.opacity=current===1?'0.3':'1';
+    document.getElementById('nextBtn').textContent=current===total?'🎉 The End!':'Next →';
+    document.getElementById('nextBtn').disabled=current===total;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changePage(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changePage(-1);});
+  let sx=0;document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)changePage(dx<0?1:-1);});
+  document.getElementById('prevBtn').style.opacity='0.3';
+</script>
+</body>
+</html>

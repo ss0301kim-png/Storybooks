@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>루나와 무지개 항아리 — 감정에 대한 이야기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --happy: #FFD93D;
+    --sad: #6BCEFF;
+    --angry: #FF6B6B;
+    --scared: #C77DFF;
+    --brave: #FF9A3C;
+    --bg: #FFF9F0;
+    --text: #3D2C2C;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 24px;
+    background: rgba(255,249,240,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 2px solid rgba(255,180,100,0.3);
+  }
+  .topbar-title { font-weight:900; font-size:1.05rem; color:#FF9A3C; }
+  .lang-badge {
+    background: #FF9A3C; color:#fff; border:none;
+    padding:6px 16px; border-radius:20px;
+    font-weight:700; font-size:0.9rem; cursor:pointer;
+    text-decoration:none;
+  }
+  .lang-badge:hover { background:#e08530; }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position:fixed; top:50px; left:0; height:4px;
+    background: linear-gradient(90deg,#FFD93D,#FF9A3C,#FF6B6B,#C77DFF,#6BCEFF);
+    transition: width 0.4s ease; z-index:99;
+  }
+
+  /* ── BOOK WRAPPER ── */
+  .book { max-width:760px; margin:0 auto; padding:70px 20px 100px; }
+
+  /* ── PAGES ── */
+  .page {
+    display:none;
+    animation: fadeIn 0.5s ease forwards;
+    min-height: calc(100vh - 160px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+  }
+  .page.active { display:flex; }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ── COVER ── */
+  .cover-title {
+    font-weight:900;
+    font-size:clamp(2.2rem,7vw,3.8rem);
+    text-align:center;
+    background: linear-gradient(135deg,#FF6B6B,#FF9A3C,#FFD93D,#4ECDC4,#6BCEFF,#C77DFF);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    line-height:1.3; margin-bottom:8px;
+  }
+  .cover-sub {
+    font-size:1.1rem; font-weight:700;
+    color:#FF9A3C; text-align:center; margin-bottom:30px;
+    letter-spacing:0.03em;
+  }
+  .cover-badge {
+    display:inline-block;
+    background: linear-gradient(135deg,#FFD93D,#FF9A3C);
+    color:#fff; font-weight:900; font-size:0.9rem;
+    padding:8px 20px; border-radius:20px; margin-top:16px;
+  }
+
+  /* ── STORY TEXT ── */
+  .story-text {
+    font-size:clamp(1.1rem,3vw,1.35rem);
+    line-height:2;
+    text-align:center;
+    max-width:600px;
+    margin:0 auto 20px;
+    font-weight:700;
+    word-break:keep-all;
+  }
+  .story-text em {
+    font-style:normal;
+    font-weight:900;
+    font-size:1.2em;
+  }
+  .page-heading {
+    font-weight:900;
+    font-size:clamp(1.6rem,5vw,2.3rem);
+    text-align:center;
+    margin-bottom:20px;
+  }
+
+  /* ── FEELING CHIP ── */
+  .feeling-chip {
+    display:inline-block;
+    padding:8px 24px;
+    border-radius:30px;
+    font-weight:900;
+    font-size:1.2rem;
+    color:#fff;
+    margin:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    animation: bounce 0.6s ease infinite alternate;
+  }
+  @keyframes bounce { to { transform:translateY(-6px); } }
+
+  /* ── ILLUSTRATION WRAPPERS ── */
+  .illo { width:100%; max-width:520px; margin:0 auto 24px; }
+  svg { width:100%; height:auto; }
+
+  /* ── NAV BUTTONS ── */
+  .nav {
+    position:fixed; bottom:0; left:0; right:0; z-index:100;
+    display:flex; justify-content:center; align-items:center; gap:16px;
+    padding:14px 24px 18px;
+    background: rgba(255,249,240,0.95);
+    border-top: 2px solid rgba(255,180,100,0.3);
+    backdrop-filter:blur(8px);
+  }
+  .btn {
+    font-weight:900; font-size:1rem;
+    padding:12px 28px; border-radius:30px; border:none;
+    cursor:pointer; transition:all 0.2s;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+  }
+  .btn-prev { background:#F0EBE3; color:#999; }
+  .btn-prev:hover { background:#e0d8cc; }
+  .btn-next { background: linear-gradient(135deg,#FF9A3C,#FF6B6B); color:#fff; }
+  .btn-next:hover { transform:scale(1.05); }
+  .btn-next:disabled { background:#ddd; color:#aaa; cursor:default; transform:none; pointer-events:none; }
+  .page-counter {
+    font-weight:700; font-size:1rem; color:#ccc; min-width:60px; text-align:center;
+  }
+
+  /* ── FEELINGS GRID ── */
+  .feelings-grid {
+    display:flex; flex-wrap:wrap; justify-content:center; gap:12px;
+    max-width:500px; margin:20px auto;
+  }
+
+  /* ── RAINBOW PAGE ── */
+  .rainbow-text {
+    font-weight:900;
+    font-size:clamp(2rem,8vw,4rem);
+    background: linear-gradient(90deg,#FF6B6B,#FF9A3C,#FFD93D,#4ECDC4,#6BCEFF,#C77DFF);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    text-align:center; animation: shimmer 2s ease infinite alternate;
+  }
+  @keyframes shimmer { to { filter:brightness(1.2); } }
+
+  /* ── FINAL PAGE ── */
+  .final-words {
+    font-weight:900;
+    font-size:clamp(1.4rem,4.5vw,2rem);
+    text-align:center; line-height:1.8;
+  }
+  .final-words span { display:block; }
+
+  /* ── ACTIVITY PAGE ── */
+  .activity-box {
+    background:#fff; border-radius:20px; padding:28px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.08);
+    max-width:560px; margin:0 auto; width:100%;
+  }
+  .activity-box h3 { font-weight:900; font-size:1.35rem; margin-bottom:16px; color:#FF9A3C; }
+  .activity-box p, .activity-box li { font-size:1rem; line-height:1.9; color:#5a4a4a; font-weight:700; }
+  .activity-box ol { padding-left:22px; }
+  .jar-input {
+    width:100%; margin-top:12px; padding:12px 16px;
+    border:2px dashed #FFD93D; border-radius:12px;
+    font-family:'Noto Sans KR'; font-size:1rem; background:#FFFDE7;
+    color:#3D2C2C; resize:vertical; min-height:80px; outline:none;
+    font-weight:700;
+  }
+  .jar-input:focus { border-color:#FF9A3C; }
+
+  /* ── PURCHASE BADGE ── */
+  .purchase-strip {
+    background: linear-gradient(135deg,#FF9A3C,#FF6B6B);
+    border-radius:16px; padding:20px 28px; text-align:center;
+    max-width:560px; margin:20px auto; color:#fff;
+  }
+  .purchase-strip h3 { font-weight:900; font-size:1.4rem; margin-bottom:6px; }
+  .purchase-strip p { font-size:0.95rem; opacity:0.9; margin-bottom:14px; font-weight:700; }
+  .buy-btn {
+    display:inline-block; background:#fff; color:#FF6B6B;
+    font-weight:900; font-size:1rem; padding:12px 28px;
+    border-radius:30px; text-decoration:none;
+    box-shadow:0 4px 14px rgba(0,0,0,0.15);
+    transition:transform 0.2s;
+  }
+  .buy-btn:hover { transform:scale(1.05); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="topbar-title">🌈 루나와 무지개 항아리</span>
+  <a href="luna-rainbow-jar-en.html" class="lang-badge">English 🇺🇸</a>
+</div>
+<div id="progress-bar" style="width:8%"></div>
+
+<!-- BOOK CONTENT -->
+<div class="book">
+
+  <!-- PAGE 1: COVER -->
+  <div class="page active" id="page-1">
+    <div class="illo">
+      <svg viewBox="0 0 520 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="sky" cx="50%" cy="30%">
+            <stop offset="0%" stop-color="#FFF9F0"/>
+            <stop offset="100%" stop-color="#FFE8CC"/>
+          </radialGradient>
+        </defs>
+        <rect width="520" height="380" fill="url(#sky)" rx="20"/>
+        <!-- Clouds -->
+        <ellipse cx="80" cy="60" rx="45" ry="22" fill="white" opacity="0.8"/>
+        <ellipse cx="110" cy="50" rx="35" ry="18" fill="white" opacity="0.8"/>
+        <ellipse cx="420" cy="70" rx="50" ry="24" fill="white" opacity="0.8"/>
+        <ellipse cx="450" cy="58" rx="38" ry="20" fill="white" opacity="0.8"/>
+        <!-- Rainbow -->
+        <path d="M 60 300 Q 260 80 460 300" fill="none" stroke="#FF6B6B" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 80 305 Q 260 105 440 305" fill="none" stroke="#FF9A3C" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 100 310 Q 260 130 420 310" fill="none" stroke="#FFD93D" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 120 315 Q 260 155 400 315" fill="none" stroke="#4ECDC4" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 140 318 Q 260 175 380 318" fill="none" stroke="#6BCEFF" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 160 320 Q 260 195 360 320" fill="none" stroke="#C77DFF" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+        <!-- Ground -->
+        <ellipse cx="260" cy="360" rx="220" ry="30" fill="#A8E6A3" opacity="0.5"/>
+        <!-- Luna body -->
+        <ellipse cx="260" cy="330" rx="45" ry="18" fill="#A8E6A3"/>
+        <path d="M225 280 Q230 330 260 335 Q290 330 295 280 Z" fill="#FF9A3C"/>
+        <path d="M235 285 Q240 315 260 318 Q280 315 285 285 Z" fill="#FFB347"/>
+        <line x1="228" y1="285" x2="200" y2="270" stroke="#FDBCB4" stroke-width="8" stroke-linecap="round"/>
+        <line x1="292" y1="285" x2="320" y2="270" stroke="#FDBCB4" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="260" cy="250" r="35" fill="#FDBCB4"/>
+        <path d="M228 235 Q230 210 260 208 Q290 210 292 235 Q280 220 260 222 Q240 220 228 235Z" fill="#5C3317"/>
+        <path d="M228 235 Q218 255 225 270 Q232 240 228 235Z" fill="#5C3317"/>
+        <path d="M292 235 Q302 255 295 270 Q288 240 292 235Z" fill="#5C3317"/>
+        <circle cx="250" cy="247" r="4" fill="#3D2C2C"/>
+        <circle cx="270" cy="247" r="4" fill="#3D2C2C"/>
+        <circle cx="252" cy="245" r="1.5" fill="white"/>
+        <circle cx="272" cy="245" r="1.5" fill="white"/>
+        <path d="M249 258 Q260 266 271 258" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="241" cy="258" rx="7" ry="5" fill="#FFB5B5" opacity="0.6"/>
+        <ellipse cx="279" cy="258" rx="7" ry="5" fill="#FFB5B5" opacity="0.6"/>
+        <!-- Jar -->
+        <ellipse cx="330" cy="268" rx="18" ry="8" fill="rgba(200,240,255,0.6)" stroke="#A0D8EF" stroke-width="1.5"/>
+        <rect x="312" y="268" width="36" height="48" rx="8" fill="rgba(200,240,255,0.45)" stroke="#A0D8EF" stroke-width="1.5"/>
+        <ellipse cx="330" cy="316" rx="18" ry="8" fill="rgba(180,220,255,0.5)" stroke="#A0D8EF" stroke-width="1.5"/>
+        <ellipse cx="330" cy="290" rx="12" ry="16" fill="none" stroke="#FF6B6B" stroke-width="3" opacity="0.7"/>
+        <path d="M322 285 Q330 278 338 290 Q330 302 322 295" fill="none" stroke="#FFD93D" stroke-width="2.5" opacity="0.8"/>
+        <circle cx="330" cy="288" r="6" fill="rgba(255,255,150,0.6)"/>
+        <rect x="314" y="260" width="32" height="10" rx="5" fill="#A0D8EF"/>
+        <!-- Stars -->
+        <text x="90" y="120" font-size="20" opacity="0.6">✨</text>
+        <text x="400" y="100" font-size="16" opacity="0.5">⭐</text>
+        <text x="150" y="150" font-size="14" opacity="0.4">✦</text>
+        <text x="370" y="160" font-size="14" opacity="0.4">✦</text>
+      </svg>
+    </div>
+
+    <h1 class="cover-title">루나와<br>무지개 항아리</h1>
+    <p class="cover-sub">감정에 대한 이야기 ✨</p>
+    <p style="text-align:center;color:#aaa;font-size:0.95rem;margin-top:8px;">3–7세 추천 &nbsp;·&nbsp; 12페이지 &nbsp;·&nbsp; 인터랙티브</p>
+    <span class="cover-badge">🌈 네 모든 감정을 위해</span>
+  </div>
+
+  <!-- PAGE 2: INTRO -->
+  <div class="page" id="page-2">
+    <div class="illo">
+      <svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg">
+        <rect width="520" height="280" fill="#FFF9F0" rx="16"/>
+        <!-- 5 mini feeling faces -->
+        <g transform="translate(30,40)">
+          <circle cx="50" cy="50" r="28" fill="#FFE566"/>
+          <circle cx="50" cy="50" r="22" fill="#FDBCB4"/>
+          <path d="M40 48 Q50 58 60 48" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="42" cy="44" r="3" fill="#3D2C2C"/>
+          <circle cx="58" cy="44" r="3" fill="#3D2C2C"/>
+          <text x="23" y="100" font-family="Noto Sans KR, sans-serif" font-weight="900" font-size="15" fill="#FF9A3C">기쁨</text>
+        </g>
+        <g transform="translate(130,40)">
+          <circle cx="50" cy="50" r="28" fill="#6BCEFF"/>
+          <circle cx="50" cy="50" r="22" fill="#FDBCB4"/>
+          <path d="M40 56 Q50 48 60 56" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="42" cy="44" r="3" fill="#3D2C2C"/>
+          <circle cx="58" cy="44" r="3" fill="#3D2C2C"/>
+          <ellipse cx="58" cy="58" rx="3" ry="4" fill="#6BCEFF"/>
+          <text x="28" y="100" font-family="Noto Sans KR, sans-serif" font-weight="900" font-size="15" fill="#6BCEFF">슬픔</text>
+        </g>
+        <g transform="translate(230,40)">
+          <circle cx="50" cy="50" r="28" fill="#FF6B6B"/>
+          <circle cx="50" cy="50" r="22" fill="#FDBCB4"/>
+          <path d="M40 55 Q50 50 60 55" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="42" cy="44" r="3" fill="#3D2C2C"/>
+          <circle cx="58" cy="44" r="3" fill="#3D2C2C"/>
+          <path d="M37 38 L47 42" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M53 42 L63 38" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="25" y="100" font-family="Noto Sans KR, sans-serif" font-weight="900" font-size="15" fill="#FF6B6B">화남</text>
+        </g>
+        <g transform="translate(330,40)">
+          <circle cx="50" cy="50" r="28" fill="#C77DFF"/>
+          <circle cx="50" cy="50" r="22" fill="#FDBCB4"/>
+          <ellipse cx="50" cy="54" rx="7" ry="5" fill="#3D2C2C" opacity="0.8"/>
+          <ellipse cx="42" cy="44" rx="4" ry="4.5" fill="#3D2C2C"/>
+          <ellipse cx="58" cy="44" rx="4" ry="4.5" fill="#3D2C2C"/>
+          <text x="22" y="100" font-family="Noto Sans KR, sans-serif" font-weight="900" font-size="15" fill="#C77DFF">무서움</text>
+        </g>
+        <g transform="translate(420,40)">
+          <circle cx="50" cy="50" r="28" fill="#FF9A3C"/>
+          <circle cx="50" cy="50" r="22" fill="#FDBCB4"/>
+          <path d="M41 52 Q50 60 59 52" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="42" cy="44" r="3.5" fill="#3D2C2C"/>
+          <circle cx="58" cy="44" r="3.5" fill="#3D2C2C"/>
+          <text x="37" y="62" font-size="11">⭐</text>
+          <text x="22" y="100" font-family="Noto Sans KR, sans-serif" font-weight="900" font-size="15" fill="#FF9A3C">용감함</text>
+        </g>
+        <!-- dots -->
+        <circle cx="110" cy="72" r="4" fill="#FFD93D"/>
+        <circle cx="210" cy="72" r="4" fill="#FFD93D"/>
+        <circle cx="310" cy="72" r="4" fill="#FFD93D"/>
+        <circle cx="410" cy="72" r="4" fill="#FFD93D"/>
+        <text x="260" y="200" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-weight="900" font-size="17" fill="#3D2C2C">루나는 매일 여러 감정을 느꼈어요.</text>
+        <text x="260" y="228" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-weight="700" font-size="15" fill="#888">그리고 그 모든 감정은 진짜였어요.</text>
+      </svg>
+    </div>
+    <p class="story-text">
+      춤출 때는 <em style="color:#FF9A3C">기쁘고</em>,<br>
+      비가 올 때는 <em style="color:#6BCEFF">슬프고</em>,<br>
+      일이 잘못될 때는 <em style="color:#FF6B6B">화가 나고</em>,<br>
+      어두울 때는 <em style="color:#C77DFF">무서웠어요</em>.<br>
+      새로운 걸 시도할 때는 <em style="color:#FF9A3C">용감했고요</em>.<br><br>
+      루나는 <strong>모든 것</strong>을 느꼈답니다.
+    </p>
+  </div>
+
+  <!-- PAGE 3: MAGICAL JAR -->
+  <div class="page" id="page-3">
+    <div class="illo">
+      <svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="gardenBg" cx="50%" cy="80%">
+            <stop offset="0%" stop-color="#E8F5E9"/>
+            <stop offset="100%" stop-color="#FFF9F0"/>
+          </radialGradient>
+          <radialGradient id="jarGlowC" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="rgba(255,255,150,0.9)"/>
+            <stop offset="80%" stop-color="rgba(255,220,100,0.4)"/>
+            <stop offset="100%" stop-color="rgba(255,200,80,0)"/>
+          </radialGradient>
+        </defs>
+        <rect width="520" height="300" fill="url(#gardenBg)" rx="16"/>
+        <ellipse cx="260" cy="280" rx="250" ry="40" fill="#C8E6C9"/>
+        <!-- Flowers -->
+        <g transform="translate(60,200)">
+          <circle cx="0" cy="-30" r="10" fill="#FFD93D"/>
+          <circle cx="10" cy="-40" r="10" fill="#FFD93D"/>
+          <circle cx="-10" cy="-40" r="10" fill="#FFD93D"/>
+          <circle cx="0" cy="-50" r="10" fill="#FFD93D"/>
+          <circle cx="0" cy="-40" r="8" fill="#FF9A3C"/>
+          <rect x="-3" y="-20" width="6" height="30" rx="3" fill="#4CAF50"/>
+        </g>
+        <g transform="translate(430,210)">
+          <circle cx="0" cy="-25" r="9" fill="#FF6B6B"/>
+          <circle cx="9" cy="-34" r="9" fill="#FF6B6B"/>
+          <circle cx="-9" cy="-34" r="9" fill="#FF6B6B"/>
+          <circle cx="0" cy="-43" r="9" fill="#FF6B6B"/>
+          <circle cx="0" cy="-34" r="7" fill="#FFD93D"/>
+          <rect x="-3" y="-15" width="6" height="25" rx="3" fill="#4CAF50"/>
+        </g>
+        <path d="M100 250 Q105 230 110 250" fill="none" stroke="#4CAF50" stroke-width="2"/>
+        <path d="M350 250 Q355 225 360 250" fill="none" stroke="#4CAF50" stroke-width="2"/>
+        <!-- Jar glow -->
+        <circle cx="260" cy="200" r="60" fill="url(#jarGlowC)"/>
+        <!-- Jar -->
+        <rect x="228" y="170" width="64" height="80" rx="14" fill="rgba(200,240,255,0.5)" stroke="#90CAF9" stroke-width="2"/>
+        <ellipse cx="260" cy="170" rx="32" ry="12" fill="rgba(210,245,255,0.7)" stroke="#90CAF9" stroke-width="2"/>
+        <ellipse cx="260" cy="250" rx="32" ry="12" fill="rgba(180,225,255,0.5)" stroke="#90CAF9" stroke-width="2"/>
+        <rect x="230" y="158" width="60" height="14" rx="7" fill="#B0BEC5"/>
+        <text x="250" y="210" font-size="22" text-anchor="middle">✨</text>
+        <text x="235" y="195" font-size="12">⭐</text>
+        <text x="275" y="230" font-size="12">💫</text>
+        <!-- Luna kneeling -->
+        <g transform="translate(320, 130)">
+          <circle cx="30" cy="30" r="22" fill="#FDBCB4"/>
+          <path d="M14 26 Q16 12 30 10 Q44 12 46 26 Q36 18 30 20 Q24 18 14 26Z" fill="#5C3317"/>
+          <circle cx="23" cy="28" r="2.5" fill="#3D2C2C"/>
+          <circle cx="37" cy="28" r="2.5" fill="#3D2C2C"/>
+          <path d="M23 37 Q30 42 37 37" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 46 Q20 80 30 82 Q40 80 42 46 Z" fill="#FF9A3C"/>
+          <line x1="18" y1="55" x2="-5" y2="68" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+        </g>
+        <!-- Thought bubble (Korean) -->
+        <circle cx="370" cy="90" r="4" fill="#ddd" opacity="0.7"/>
+        <circle cx="382" cy="78" r="6" fill="#ddd" opacity="0.7"/>
+        <rect x="385" y="52" width="105" height="44" rx="20" fill="white" stroke="#eee" stroke-width="1.5"/>
+        <text x="437" y="70" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-weight="700" font-size="13" fill="#888">"넌 뭐야?"</text>
+        <text x="437" y="88" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-weight="700" font-size="13" fill="#888">루나가 속삭였죠.</text>
+      </svg>
+    </div>
+    <p class="story-text">
+      어느 날 아침, 루나는 정원에서<br>
+      신기한 것을 발견했어요.<br>
+      비어 있는 유리 항아리가<br>
+      살짝 빛나고 있었거든요.<br><br>
+      "넌 뭐야?" 루나가 속삭였어요.<br>
+      항아리가 반짝이며 대답했어요. 🌟
+    </p>
+  </div>
+
+  <!-- PAGE 4: HAPPY (기쁨) -->
+  <div class="page" id="page-4">
+    <p class="page-heading" style="color:var(--happy)">💛 기쁨</p>
+    <div class="illo">
+      <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+        <rect width="520" height="240" fill="#FFFDE7" rx="16"/>
+        <circle cx="260" cy="80" r="55" fill="#FFD93D" opacity="0.25"/>
+        <circle cx="260" cy="80" r="40" fill="#FFD93D" opacity="0.5"/>
+        <circle cx="260" cy="80" r="28" fill="#FFD93D"/>
+        <line x1="260" y1="35" x2="260" y2="20" stroke="#FFD93D" stroke-width="4" stroke-linecap="round"/>
+        <line x1="260" y1="125" x2="260" y2="140" stroke="#FFD93D" stroke-width="4" stroke-linecap="round"/>
+        <line x1="215" y1="80" x2="200" y2="80" stroke="#FFD93D" stroke-width="4" stroke-linecap="round"/>
+        <line x1="305" y1="80" x2="320" y2="80" stroke="#FFD93D" stroke-width="4" stroke-linecap="round"/>
+        <line x1="228" y1="48" x2="218" y2="38" stroke="#FFD93D" stroke-width="4" stroke-linecap="round"/>
+        <line x1="292" y1="112" x2="302" y2="122" stroke="#FFD93D" stroke-width="4" stroke-linecap="round"/>
+        <line x1="228" y1="112" x2="218" y2="122" stroke="#FFD93D" stroke-width="4" stroke-linecap="round"/>
+        <line x1="292" y1="48" x2="302" y2="38" stroke="#FFD93D" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="252" cy="76" r="3.5" fill="#FF9A3C"/>
+        <circle cx="268" cy="76" r="3.5" fill="#FF9A3C"/>
+        <path d="M250 84 Q260 91 270 84" fill="none" stroke="#FF9A3C" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Dancing Luna -->
+        <g transform="translate(80,90)">
+          <circle cx="40" cy="30" r="22" fill="#FDBCB4"/>
+          <path d="M24 25 Q26 10 40 8 Q54 10 56 25 Q46 17 40 19 Q34 17 24 25Z" fill="#5C3317"/>
+          <circle cx="33" cy="28" r="2.5" fill="#3D2C2C"/>
+          <circle cx="47" cy="28" r="2.5" fill="#3D2C2C"/>
+          <path d="M33 36 Q40 42 47 36" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+          <ellipse cx="36" cy="38" rx="5" ry="3" fill="#FFB5B5" opacity="0.6"/>
+          <ellipse cx="44" cy="38" rx="5" ry="3" fill="#FFB5B5" opacity="0.6"/>
+          <path d="M26 50 Q28 90 40 92 Q52 90 54 50 Z" fill="#FF9A3C"/>
+          <line x1="26" y1="58" x2="5" y2="40" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+          <line x1="54" y1="58" x2="75" y2="38" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+          <ellipse cx="34" cy="92" rx="8" ry="5" fill="#FF9A3C"/>
+          <ellipse cx="46" cy="94" rx="8" ry="5" fill="#FFB347"/>
+        </g>
+        <text x="175" y="130" font-size="22" opacity="0.7">🎵</text>
+        <text x="195" y="105" font-size="18" opacity="0.6">♪</text>
+        <text x="148" y="110" font-size="16" opacity="0.5">♫</text>
+        <!-- Bubble to jar -->
+        <circle cx="380" cy="100" r="28" fill="#FFD93D" opacity="0.7" stroke="#FF9A3C" stroke-width="2"/>
+        <circle cx="370" cy="90" r="6" fill="white" opacity="0.5"/>
+        <text x="380" y="108" text-anchor="middle" font-size="20">😊</text>
+        <path d="M410 100 Q430 90 440 100" fill="none" stroke="#FF9A3C" stroke-width="2" stroke-dasharray="5,3"/>
+        <polygon points="440,95 450,100 440,105" fill="#FF9A3C"/>
+        <rect x="450" y="130" width="44" height="58" rx="10" fill="rgba(200,240,255,0.5)" stroke="#90CAF9" stroke-width="2"/>
+        <ellipse cx="472" cy="130" rx="22" ry="8" fill="rgba(220,245,255,0.7)" stroke="#90CAF9" stroke-width="2"/>
+        <rect x="452" y="120" width="40" height="12" rx="6" fill="#B0BEC5"/>
+        <circle cx="472" cy="158" r="12" fill="#FFD93D" opacity="0.8"/>
+      </svg>
+    </div>
+    <p class="story-text">
+      루나는 햇살 가득한 들판으로 달려갔어요.<br>
+      빙글빙글 돌며 깔깔 웃었지요.<br><br>
+      <em style="color:#FF9A3C">퐁!</em> 황금빛 방울 하나가 항아리 속으로<br>
+      쏙 들어갔어요. 바로 <em style="color:var(--happy)">기쁨</em>이었죠! ✨
+    </p>
+  </div>
+
+  <!-- PAGE 5: SAD (슬픔) -->
+  <div class="page" id="page-5">
+    <p class="page-heading" style="color:var(--sad)">💙 슬픔</p>
+    <div class="illo">
+      <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+        <rect width="520" height="240" fill="#E3F2FD" rx="16"/>
+        <rect x="140" y="20" width="200" height="190" rx="8" fill="#fff" stroke="#90CAF9" stroke-width="3"/>
+        <line x1="240" y1="20" x2="240" y2="210" stroke="#90CAF9" stroke-width="2"/>
+        <line x1="140" y1="115" x2="340" y2="115" stroke="#90CAF9" stroke-width="2"/>
+        <!-- Rain lines -->
+        <line x1="170" y1="30" x2="165" y2="60" stroke="#6BCEFF" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+        <line x1="200" y1="25" x2="195" y2="55" stroke="#6BCEFF" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+        <line x1="280" y1="28" x2="275" y2="58" stroke="#6BCEFF" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+        <line x1="310" y1="32" x2="305" y2="62" stroke="#6BCEFF" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+        <ellipse cx="185" cy="35" rx="28" ry="14" fill="#B0BEC5" opacity="0.7"/>
+        <ellipse cx="295" cy="38" rx="32" ry="14" fill="#90A4AE" opacity="0.7"/>
+        <!-- Sad Luna -->
+        <g transform="translate(158, 115)">
+          <circle cx="40" cy="28" r="20" fill="#FDBCB4"/>
+          <path d="M25 24 Q27 10 40 8 Q53 10 55 24 Q45 18 40 20 Q35 18 25 24Z" fill="#5C3317"/>
+          <circle cx="33" cy="26" r="2.5" fill="#3D2C2C"/>
+          <circle cx="47" cy="26" r="2.5" fill="#3D2C2C"/>
+          <path d="M34 34 Q40 30 46 34" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+          <ellipse cx="48" cy="38" rx="3" ry="5" fill="#6BCEFF"/>
+          <ellipse cx="34" cy="36" rx="2.5" ry="4" fill="#6BCEFF"/>
+          <path d="M24 46 Q26 75 40 77 Q54 75 56 46 Z" fill="#6BCEFF"/>
+          <line x1="24" y1="55" x2="0" y2="58" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+          <line x1="56" y1="55" x2="80" y2="58" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+        </g>
+        <!-- Blue drop to jar -->
+        <path d="M380 100 Q390 80 395 100 Q390 120 380 100Z" fill="#6BCEFF" opacity="0.8"/>
+        <path d="M415 100 Q425 120 435 105" fill="none" stroke="#6BCEFF" stroke-width="2" stroke-dasharray="4,3"/>
+        <polygon points="435,100 443,107 437,112" fill="#6BCEFF"/>
+        <rect x="450" y="130" width="44" height="58" rx="10" fill="rgba(200,240,255,0.5)" stroke="#90CAF9" stroke-width="2"/>
+        <ellipse cx="472" cy="130" rx="22" ry="8" fill="rgba(220,245,255,0.7)" stroke="#90CAF9" stroke-width="2"/>
+        <rect x="452" y="120" width="40" height="12" rx="6" fill="#B0BEC5"/>
+        <circle cx="468" cy="165" r="8" fill="#FFD93D" opacity="0.8"/>
+        <circle cx="476" cy="150" r="8" fill="#6BCEFF" opacity="0.8"/>
+      </svg>
+    </div>
+    <p class="story-text">
+      그날 비가 내리기 시작했어요.<br>
+      루나는 창가에 앉아 빗방울을 바라봤죠.<br>
+      뺨을 타고 눈물 한 방울이 흘렀어요.<br><br>
+      <em style="color:#6BCEFF">똑!</em> 파란 방울 하나가 항아리 속으로<br>
+      사르르 들어갔어요. 바로 <em style="color:var(--sad)">슬픔</em>이었죠! 💧
+    </p>
+  </div>
+
+  <!-- PAGE 6: ANGRY (화남) -->
+  <div class="page" id="page-6">
+    <p class="page-heading" style="color:var(--angry)">❤️‍🔥 화남</p>
+    <div class="illo">
+      <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+        <rect width="520" height="240" fill="#FFF3E0" rx="16"/>
+        <rect x="100" y="160" width="280" height="12" rx="6" fill="#BCAAA4"/>
+        <rect x="130" y="172" width="10" height="40" rx="5" fill="#BCAAA4"/>
+        <rect x="340" y="172" width="10" height="40" rx="5" fill="#BCAAA4"/>
+        <!-- Fallen peas -->
+        <circle cx="200" cy="155" r="7" fill="#66BB6A"/>
+        <circle cx="230" cy="152" r="7" fill="#66BB6A"/>
+        <circle cx="260" cy="148" r="7" fill="#66BB6A"/>
+        <circle cx="280" cy="158" r="6" fill="#66BB6A"/>
+        <circle cx="215" cy="165" r="6" fill="#66BB6A"/>
+        <circle cx="245" cy="162" r="6" fill="#66BB6A"/>
+        <ellipse cx="240" cy="158" rx="70" ry="14" fill="white" stroke="#ddd" stroke-width="2" opacity="0.6"/>
+        <circle cx="310" cy="140" r="7" fill="#66BB6A"/>
+        <circle cx="308" cy="128" r="7" fill="#66BB6A"/>
+        <circle cx="312" cy="116" r="7" fill="#66BB6A"/>
+        <!-- Angry Luna -->
+        <g transform="translate(80,60)">
+          <circle cx="40" cy="38" r="24" fill="#FDBCB4"/>
+          <path d="M23 32 Q25 16 40 14 Q55 16 57 32 Q47 24 40 26 Q33 24 23 32Z" fill="#5C3317"/>
+          <circle cx="32" cy="36" r="3" fill="#3D2C2C"/>
+          <circle cx="48" cy="36" r="3" fill="#3D2C2C"/>
+          <path d="M27 28 L37 33" stroke="#3D2C2C" stroke-width="3" stroke-linecap="round"/>
+          <path d="M43 33 L53 28" stroke="#3D2C2C" stroke-width="3" stroke-linecap="round"/>
+          <path d="M33 46 Q40 42 47 46" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <ellipse cx="29" cy="42" rx="8" ry="5" fill="#FF6B6B" opacity="0.5"/>
+          <ellipse cx="51" cy="42" rx="8" ry="5" fill="#FF6B6B" opacity="0.5"/>
+          <path d="M22 60 Q24 100 40 102 Q56 100 58 60 Z" fill="#FF9A3C"/>
+          <line x1="22" y1="70" x2="0" y2="60" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+          <line x1="58" y1="70" x2="80" y2="60" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+        </g>
+        <text x="160" y="80" font-size="20" opacity="0.8">💢</text>
+        <text x="175" y="60" font-size="16" opacity="0.7">😤</text>
+        <!-- Flame to jar -->
+        <path d="M390 100 Q395 75 410 100 Q400 120 390 100Z" fill="#FF6B6B" opacity="0.8"/>
+        <path d="M425 100 Q435 90 443 100" fill="none" stroke="#FF6B6B" stroke-width="2" stroke-dasharray="4,3"/>
+        <polygon points="443,96 451,102 445,107" fill="#FF6B6B"/>
+        <rect x="450" y="130" width="44" height="58" rx="10" fill="rgba(200,240,255,0.5)" stroke="#90CAF9" stroke-width="2"/>
+        <ellipse cx="472" cy="130" rx="22" ry="8" fill="rgba(220,245,255,0.7)" stroke="#90CAF9" stroke-width="2"/>
+        <rect x="452" y="120" width="40" height="12" rx="6" fill="#B0BEC5"/>
+        <circle cx="463" cy="170" r="7" fill="#FFD93D" opacity="0.8"/>
+        <circle cx="476" cy="158" r="7" fill="#6BCEFF" opacity="0.8"/>
+        <circle cx="481" cy="172" r="7" fill="#FF6B6B" opacity="0.8"/>
+      </svg>
+    </div>
+    <p class="story-text">
+      저녁 식사 때 루나의 완두콩 탑이<br>
+      와르르 무너졌어요.<br>
+      <em style="color:#FF6B6B">"싫어!"</em> 루나가 외쳤고<br>
+      볼이 빨개졌어요.<br><br>
+      <em style="color:#FF6B6B">슈웃!</em> 빨간 불꽃이 항아리 속으로<br>
+      빙글 들어갔어요. 바로 <em style="color:var(--angry)">화남</em>이었죠! 🔥
+    </p>
+  </div>
+
+  <!-- PAGE 7: SCARED (무서움) -->
+  <div class="page" id="page-7">
+    <p class="page-heading" style="color:var(--scared)">💜 무서움</p>
+    <div class="illo">
+      <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+        <rect width="520" height="240" fill="#EDE7F6" rx="16"/>
+        <rect x="0" y="0" width="520" height="240" fill="#1a0a2e" rx="16" opacity="0.85"/>
+        <rect x="190" y="10" width="140" height="120" rx="8" fill="#0d1b3e" stroke="#5c4a8a" stroke-width="2"/>
+        <circle cx="260" cy="60" r="28" fill="#F5F5DC"/>
+        <circle cx="270" cy="55" r="22" fill="#0d1b3e"/>
+        <circle cx="200" cy="25" r="2" fill="white" opacity="0.8"/>
+        <circle cx="310" cy="30" r="1.5" fill="white" opacity="0.7"/>
+        <rect x="60" y="180" width="360" height="50" rx="10" fill="#4a3728"/>
+        <rect x="60" y="160" width="80" height="60" rx="8" fill="#5d4635"/>
+        <rect x="100" y="165" width="100" height="40" rx="15" fill="#f0e8d0"/>
+        <path d="M60 182 Q260 176 420 182 L420 220 Q260 226 60 220 Z" fill="#7B68EE" opacity="0.9"/>
+        <!-- Scared Luna -->
+        <g transform="translate(150, 148)">
+          <circle cx="40" cy="30" r="20" fill="#FDBCB4"/>
+          <path d="M25 25 Q27 12 40 10 Q53 12 55 25 Q45 19 40 21 Q35 19 25 25Z" fill="#5C3317"/>
+          <ellipse cx="33" cy="28" rx="5" ry="6" fill="white"/>
+          <ellipse cx="47" cy="28" rx="5" ry="6" fill="white"/>
+          <circle cx="34" cy="29" r="3" fill="#3D2C2C"/>
+          <circle cx="48" cy="29" r="3" fill="#3D2C2C"/>
+          <circle cx="35" cy="28" r="1" fill="white"/>
+          <circle cx="49" cy="28" r="1" fill="white"/>
+          <ellipse cx="40" cy="38" rx="5" ry="4" fill="#3D2C2C" opacity="0.8"/>
+        </g>
+        <!-- Purple mist to jar -->
+        <ellipse cx="390" cy="110" rx="24" ry="18" fill="#C77DFF" opacity="0.5"/>
+        <ellipse cx="390" cy="110" rx="16" ry="12" fill="#C77DFF" opacity="0.7"/>
+        <path d="M415 110 Q427 105 437 112" fill="none" stroke="#C77DFF" stroke-width="2" stroke-dasharray="4,3"/>
+        <polygon points="437,107 447,113 439,118" fill="#C77DFF"/>
+        <rect x="450" y="130" width="44" height="58" rx="10" fill="rgba(200,240,255,0.15)" stroke="#90CAF9" stroke-width="2"/>
+        <ellipse cx="472" cy="130" rx="22" ry="8" fill="rgba(220,245,255,0.2)" stroke="#90CAF9" stroke-width="2"/>
+        <rect x="452" y="120" width="40" height="12" rx="6" fill="#546E7A"/>
+        <circle cx="463" cy="168" r="6" fill="#FFD93D" opacity="0.8"/>
+        <circle cx="476" cy="157" r="6" fill="#6BCEFF" opacity="0.8"/>
+        <circle cx="481" cy="170" r="6" fill="#FF6B6B" opacity="0.8"/>
+        <circle cx="468" cy="153" r="6" fill="#C77DFF" opacity="0.8"/>
+      </svg>
+    </div>
+    <p class="story-text">
+      그날 밤 불이 꺼졌어요.<br>
+      루나는 이불을 꼭 끌어안았죠.<br>
+      심장이 쿵... 쿵... 쿵... 뛰었어요.<br><br>
+      <em style="color:#C77DFF">반짝!</em> 보라색 안개가 항아리 속으로<br>
+      사르르 내려앉았어요. 바로 <em style="color:var(--scared)">무서움</em>이었죠! 🌙
+    </p>
+  </div>
+
+  <!-- PAGE 8: BRAVE (용감함) -->
+  <div class="page" id="page-8">
+    <p class="page-heading" style="color:var(--brave)">🧡 용감함</p>
+    <div class="illo">
+      <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="braveBg" cx="40%" cy="50%">
+            <stop offset="0%" stop-color="#FFF8EE"/>
+            <stop offset="100%" stop-color="#FFE0CC"/>
+          </radialGradient>
+          <radialGradient id="flashlight" cx="0%" cy="50%">
+            <stop offset="0%" stop-color="rgba(255,220,120,0.9)"/>
+            <stop offset="100%" stop-color="rgba(255,220,120,0)"/>
+          </radialGradient>
+        </defs>
+        <rect width="520" height="240" fill="url(#braveBg)" rx="16"/>
+        <path d="M200 120 L400 60 L400 180 Z" fill="url(#flashlight)"/>
+        <path d="M0 0 L150 0 L150 240 L0 240 Z" fill="#1a1a2e" opacity="0.7"/>
+        <circle cx="380" cy="80" r="3" fill="#FFD93D" opacity="0.9"/>
+        <circle cx="420" cy="110" r="2" fill="#FFD93D" opacity="0.7"/>
+        <circle cx="440" cy="70" r="2.5" fill="#FFD93D" opacity="0.8"/>
+        <!-- Brave Luna -->
+        <g transform="translate(110,50)">
+          <circle cx="40" cy="36" r="24" fill="#FDBCB4"/>
+          <path d="M23 30 Q25 14 40 12 Q55 14 57 30 Q47 22 40 24 Q33 22 23 30Z" fill="#5C3317"/>
+          <circle cx="33" cy="34" r="3" fill="#3D2C2C"/>
+          <circle cx="47" cy="34" r="3" fill="#3D2C2C"/>
+          <circle cx="34" cy="33" r="1" fill="white"/>
+          <circle cx="48" cy="33" r="1" fill="white"/>
+          <path d="M33 43 Q40 50 47 43" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M22 58 Q24 100 40 102 Q56 100 58 58 Z" fill="#FF9A3C"/>
+          <line x1="58" y1="68" x2="88" y2="65" stroke="#FDBCB4" stroke-width="8" stroke-linecap="round"/>
+          <rect x="88" y="60" width="30" height="12" rx="6" fill="#607D8B"/>
+          <circle cx="120" cy="66" r="8" fill="#FFD93D" opacity="0.9"/>
+          <circle cx="120" cy="66" r="5" fill="white" opacity="0.7"/>
+          <line x1="22" y1="68" x2="0" y2="80" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+          <path d="M22 60 Q5 80 10 100 Q20 90 40 100 Z" fill="#FF6B6B" opacity="0.8"/>
+        </g>
+        <text x="210" y="55" font-size="16" opacity="0.8">💨</text>
+        <text x="230" y="38" font-family="Noto Sans KR" font-size="12" opacity="0.6">후... 숨을 들이쉬고</text>
+        <!-- Brave spark to jar -->
+        <circle cx="390" cy="100" r="18" fill="#FF9A3C" opacity="0.85"/>
+        <circle cx="390" cy="100" r="10" fill="#FFD93D"/>
+        <text x="390" y="107" text-anchor="middle" font-size="14">⚡</text>
+        <path d="M408 100 Q422 94 434 100" fill="none" stroke="#FF9A3C" stroke-width="2" stroke-dasharray="4,3"/>
+        <polygon points="434,95 443,101 435,106" fill="#FF9A3C"/>
+        <rect x="450" y="130" width="44" height="58" rx="10" fill="rgba(200,240,255,0.5)" stroke="#90CAF9" stroke-width="2"/>
+        <ellipse cx="472" cy="130" rx="22" ry="8" fill="rgba(220,245,255,0.7)" stroke="#90CAF9" stroke-width="2"/>
+        <rect x="452" y="120" width="40" height="12" rx="6" fill="#B0BEC5"/>
+        <circle cx="460" cy="170" r="6" fill="#FFD93D" opacity="0.8"/>
+        <circle cx="471" cy="160" r="6" fill="#6BCEFF" opacity="0.8"/>
+        <circle cx="480" cy="171" r="6" fill="#FF6B6B" opacity="0.8"/>
+        <circle cx="466" cy="152" r="6" fill="#C77DFF" opacity="0.8"/>
+        <circle cx="476" cy="148" r="6" fill="#FF9A3C" opacity="0.9"/>
+      </svg>
+    </div>
+    <p class="story-text">
+      그런데 루나는 깊이 숨을 들이쉬었어요.<br>
+      손전등을 잡으며 속삭였죠.<br>
+      <em style="color:#FF9A3C">"나는 용감할 수 있어."</em><br><br>
+      <em style="color:#FF9A3C">번쩍!</em> 주황빛 불꽃이 항아리 속으로<br>
+      퐁 뛰어들었어요. 바로 <em style="color:var(--brave)">용감함</em>이었죠! ⚡
+    </p>
+  </div>
+
+  <!-- PAGE 9: THE RAINBOW (무지개!) -->
+  <div class="page" id="page-9">
+    <div class="illo">
+      <svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="rainbowGlowKo" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="rgba(255,255,200,1)"/>
+            <stop offset="40%" stop-color="rgba(255,220,100,0.6)"/>
+            <stop offset="100%" stop-color="rgba(255,200,80,0)"/>
+          </radialGradient>
+        </defs>
+        <rect width="520" height="280" fill="#FFF9F0" rx="16"/>
+        <circle cx="260" cy="150" r="120" fill="url(#rainbowGlowKo)"/>
+        <circle cx="260" cy="155" r="95" fill="none" stroke="rgba(255,200,80,0.2)" stroke-width="15"/>
+        <circle cx="260" cy="155" r="75" fill="none" stroke="rgba(255,200,80,0.25)" stroke-width="12"/>
+        <!-- Big jar -->
+        <rect x="210" y="105" width="100" height="120" rx="18" fill="rgba(200,240,255,0.55)" stroke="#90CAF9" stroke-width="2.5"/>
+        <ellipse cx="260" cy="105" rx="50" ry="18" fill="rgba(210,245,255,0.7)" stroke="#90CAF9" stroke-width="2.5"/>
+        <ellipse cx="260" cy="225" rx="50" ry="18" fill="rgba(180,225,255,0.5)" stroke="#90CAF9" stroke-width="2.5"/>
+        <rect x="212" y="88" width="96" height="20" rx="10" fill="#90CAF9"/>
+        <rect x="220" y="83" width="80" height="12" rx="6" fill="#B0BEC5"/>
+        <!-- Rainbow layers in jar -->
+        <ellipse cx="260" cy="210" rx="38" ry="8" fill="#FF6B6B" opacity="0.75"/>
+        <ellipse cx="260" cy="198" rx="38" ry="8" fill="#FF9A3C" opacity="0.75"/>
+        <ellipse cx="260" cy="186" rx="38" ry="8" fill="#FFD93D" opacity="0.8"/>
+        <ellipse cx="260" cy="174" rx="38" ry="8" fill="#4ECDC4" opacity="0.75"/>
+        <ellipse cx="260" cy="162" rx="38" ry="8" fill="#6BCEFF" opacity="0.75"/>
+        <ellipse cx="260" cy="150" rx="38" ry="8" fill="#C77DFF" opacity="0.75"/>
+        <ellipse cx="260" cy="180" rx="30" ry="35" fill="rgba(255,255,200,0.35)"/>
+        <!-- Sparkles -->
+        <text x="155" y="120" font-size="24">✨</text>
+        <text x="340" y="115" font-size="22">✨</text>
+        <text x="140" y="180" font-size="18">⭐</text>
+        <text x="350" y="185" font-size="18">⭐</text>
+        <!-- Luna amazed -->
+        <g transform="translate(355, 155)">
+          <circle cx="30" cy="28" r="20" fill="#FDBCB4"/>
+          <path d="M16 23 Q18 10 30 8 Q42 10 44 23 Q36 17 30 19 Q24 17 16 23Z" fill="#5C3317"/>
+          <circle cx="23" cy="26" r="3" fill="#3D2C2C"/>
+          <circle cx="37" cy="26" r="3" fill="#3D2C2C"/>
+          <ellipse cx="30" cy="35" rx="5" ry="6" fill="#3D2C2C" opacity="0.7"/>
+          <text x="21" y="28" font-size="6">⭐</text>
+          <text x="35" y="28" font-size="6">⭐</text>
+          <path d="M14 46 Q16 70 30 72 Q44 70 46 46 Z" fill="#FF9A3C"/>
+        </g>
+        <text x="260" y="48" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-weight="900" font-size="21" fill="#FF9A3C">루나가 항아리를 바라봤어요...</text>
+      </svg>
+    </div>
+    <div class="rainbow-text">무지개다! 🌈</div>
+    <p class="story-text" style="margin-top:16px">
+      빨강, 주황, 노랑, 초록, 파랑, 보라...<br>
+      루나의 모든 감정이 함께 모이자<br>
+      <strong>마법 같은 것</strong>이 생겨났어요.
+    </p>
+  </div>
+
+  <!-- PAGE 10: SHARING (나누기) -->
+  <div class="page" id="page-10">
+    <div class="illo">
+      <svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="shareBgKo" cx="50%" cy="60%">
+            <stop offset="0%" stop-color="#FFF9D0"/>
+            <stop offset="100%" stop-color="#FFF9F0"/>
+          </radialGradient>
+        </defs>
+        <rect width="520" height="280" fill="url(#shareBgKo)" rx="16"/>
+        <!-- Rainbow beams -->
+        <path d="M260 180 L80 120 L80 240 Z" fill="rgba(255,100,100,0.12)"/>
+        <path d="M260 180 L440 120 L440 240 Z" fill="rgba(100,150,255,0.12)"/>
+        <line x1="260" y1="175" x2="100" y2="155" stroke="#FF6B6B" stroke-width="3" opacity="0.5" stroke-dasharray="8,4"/>
+        <line x1="260" y1="175" x2="420" y2="155" stroke="#6BCEFF" stroke-width="3" opacity="0.5" stroke-dasharray="8,4"/>
+        <line x1="260" y1="175" x2="300" y2="80" stroke="#FFD93D" stroke-width="3" opacity="0.5" stroke-dasharray="8,4"/>
+        <!-- Center Luna with jar -->
+        <g transform="translate(218, 120)">
+          <circle cx="42" cy="35" r="26" fill="#FDBCB4"/>
+          <path d="M24 29 Q26 12 42 10 Q58 12 60 29 Q50 21 42 23 Q34 21 24 29Z" fill="#5C3317"/>
+          <circle cx="35" cy="32" r="3" fill="#3D2C2C"/>
+          <circle cx="49" cy="32" r="3" fill="#3D2C2C"/>
+          <path d="M35 43 Q42 50 49 43" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M24 59 Q26 100 42 102 Q58 100 60 59 Z" fill="#FF9A3C"/>
+          <line x1="60" y1="65" x2="80" y2="55" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+          <!-- Jar held up -->
+          <rect x="80" y="45" width="32" height="40" rx="8" fill="rgba(200,240,255,0.6)" stroke="#90CAF9" stroke-width="1.5"/>
+          <ellipse cx="96" cy="45" rx="16" ry="6" fill="rgba(220,245,255,0.8)" stroke="#90CAF9" stroke-width="1.5"/>
+          <ellipse cx="96" cy="75" rx="13" ry="4" fill="#FF6B6B" opacity="0.8"/>
+          <ellipse cx="96" cy="69" rx="13" ry="4" fill="#FFD93D" opacity="0.8"/>
+          <ellipse cx="96" cy="63" rx="13" ry="4" fill="#6BCEFF" opacity="0.8"/>
+          <ellipse cx="96" cy="57" rx="13" ry="4" fill="#C77DFF" opacity="0.8"/>
+          <rect x="82" y="37" width="28" height="10" rx="5" fill="#90CAF9"/>
+          <rect x="82" y="30" width="28" height="9" rx="4.5" fill="#B0BEC5" transform="rotate(-15,96,35)"/>
+        </g>
+        <!-- Friend 1 -->
+        <g transform="translate(60, 140)">
+          <circle cx="35" cy="30" r="20" fill="#FFD8A8"/>
+          <path d="M20 26 Q22 13 35 11 Q48 13 50 26 Q42 20 35 22 Q28 20 20 26Z" fill="#8B4513"/>
+          <circle cx="28" cy="28" r="2.5" fill="#3D2C2C"/>
+          <circle cx="42" cy="28" r="2.5" fill="#3D2C2C"/>
+          <path d="M28 36 Q35 42 42 36" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 48 Q20 80 35 82 Q50 80 52 48 Z" fill="#4ECDC4"/>
+          <line x1="52" y1="58" x2="72" y2="52" stroke="#FFD8A8" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="74" cy="50" r="6" fill="#FFD8A8"/>
+        </g>
+        <!-- Friend 2 -->
+        <g transform="translate(380, 140)">
+          <circle cx="35" cy="30" r="20" fill="#C8A882"/>
+          <path d="M17 26 Q15 14 35 9 Q55 14 53 26 Q45 20 35 22 Q25 20 17 26Z" fill="#2C1A0E"/>
+          <circle cx="28" cy="28" r="2.5" fill="#3D2C2C"/>
+          <circle cx="42" cy="28" r="2.5" fill="#3D2C2C"/>
+          <path d="M28 36 Q35 42 42 36" fill="none" stroke="#3D2C2C" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 48 Q20 80 35 82 Q50 80 52 48 Z" fill="#6BCEFF"/>
+          <line x1="18" y1="58" x2="-2" y2="52" stroke="#C8A882" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="-4" cy="50" r="6" fill="#C8A882"/>
+        </g>
+        <text x="120" y="90" font-size="18" opacity="0.8">🌈</text>
+        <text x="370" y="95" font-size="16" opacity="0.7">✨</text>
+        <text x="260" y="248" text-anchor="middle" font-family="Noto Sans KR, sans-serif" font-weight="900" font-size="16" fill="#FF9A3C">"다 느꼈어," 루나가 말했어요. "그리고 잘 담아뒀지."</text>
+      </svg>
+    </div>
+    <p class="story-text">
+      루나는 무지개 항아리를 친구들에게 가져갔어요.<br>
+      뚜껑을 열자, 무지개 빛이<br>
+      사방으로 퍼져 나갔어요! 🌈<br><br>
+      "어떻게 만든 거야?" 친구들이 물었어요.<br>
+      <em style="color:#FF9A3C">"다 느꼈어,"</em> 루나가 말했죠,<br>
+      <em>"그리고 잘 담아뒀지."</em>
+    </p>
+  </div>
+
+  <!-- PAGE 11: FINAL MESSAGE (마지막 메시지) -->
+  <div class="page" id="page-11">
+    <div class="illo">
+      <svg viewBox="0 0 520 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="finalBgKo" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#FFFDE7"/>
+            <stop offset="100%" stop-color="#FFF3E0"/>
+          </radialGradient>
+        </defs>
+        <rect width="520" height="220" fill="url(#finalBgKo)" rx="16"/>
+        <!-- Rainbow arcs -->
+        <path d="M 40 200 Q 260 40 480 200" fill="none" stroke="#FF6B6B" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+        <path d="M 55 205 Q 260 60 465 205" fill="none" stroke="#FF9A3C" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+        <path d="M 70 208 Q 260 80 450 208" fill="none" stroke="#FFD93D" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 85 210 Q 260 100 435 210" fill="none" stroke="#4ECDC4" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+        <path d="M 100 212 Q 260 118 420 212" fill="none" stroke="#6BCEFF" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+        <path d="M 115 213 Q 260 135 405 213" fill="none" stroke="#C77DFF" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+        <!-- Luna arms wide -->
+        <g transform="translate(225, 120)">
+          <circle cx="35" cy="28" r="22" fill="#FDBCB4"/>
+          <path d="M20 24 Q22 10 35 8 Q48 10 50 24 Q42 18 35 20 Q28 18 20 24Z" fill="#5C3317"/>
+          <circle cx="28" cy="26" r="3" fill="#3D2C2C"/>
+          <circle cx="42" cy="26" r="3" fill="#3D2C2C"/>
+          <path d="M28 34 Q35 41 42 34" fill="none" stroke="#3D2C2C" stroke-width="2.5" stroke-linecap="round"/>
+          <ellipse cx="28" cy="30" rx="6" ry="4" fill="#FFB5B5" opacity="0.6"/>
+          <ellipse cx="42" cy="30" rx="6" ry="4" fill="#FFB5B5" opacity="0.6"/>
+          <path d="M19 50 Q21 85 35 87 Q49 85 51 50 Z" fill="#FF9A3C"/>
+          <line x1="19" y1="58" x2="-5" y2="48" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+          <line x1="51" y1="58" x2="75" y2="48" stroke="#FDBCB4" stroke-width="7" stroke-linecap="round"/>
+        </g>
+        <!-- Floating feeling words in Korean -->
+        <text x="55" y="155" font-family="Noto Sans KR" font-weight="900" font-size="15" fill="#FF9A3C" opacity="0.7" transform="rotate(-15,55,155)">기쁨</text>
+        <text x="95" y="180" font-family="Noto Sans KR" font-weight="900" font-size="14" fill="#6BCEFF" opacity="0.7" transform="rotate(10,95,180)">슬픔</text>
+        <text x="378" y="158" font-family="Noto Sans KR" font-weight="900" font-size="15" fill="#FF6B6B" opacity="0.7" transform="rotate(12,378,158)">화남</text>
+        <text x="400" y="185" font-family="Noto Sans KR" font-weight="900" font-size="13" fill="#C77DFF" opacity="0.7" transform="rotate(-8,400,185)">무서움</text>
+        <text x="165" y="192" font-family="Noto Sans KR" font-weight="900" font-size="13" fill="#FF9A3C" opacity="0.6" transform="rotate(5,165,192)">용감함</text>
+        <text x="328" y="193" font-family="Noto Sans KR" font-weight="900" font-size="13" fill="#4ECDC4" opacity="0.6" transform="rotate(-10,328,193)">사랑</text>
+      </svg>
+    </div>
+    <div class="final-words">
+      <span style="color:#FF6B6B">네 감정은 모두 진짜예요. 💛</span>
+      <span style="color:#FF9A3C">네 감정은 모두 소중해요.</span>
+      <span style="color:#C77DFF">기쁨, 슬픔, 화남, 무서움, 용감함...</span>
+      <span style="background:linear-gradient(90deg,#FF6B6B,#FF9A3C,#FFD93D,#6BCEFF,#C77DFF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent; font-size:2.1rem;">그 모든 감정이 바로</span>
+      <span style="font-size:2.5rem">아름다운 너야. ✨</span>
+    </div>
+  </div>
+
+  <!-- PAGE 12: ACTIVITY & PURCHASE -->
+  <div class="page" id="page-12">
+    <div class="activity-box">
+      <h3>🌈 내 감정 항아리 활동</h3>
+      <p>오늘 나는 어떤 감정을 느꼈나요? 아래에 써보거나 그려보세요!</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:14px 0">
+        <span class="feeling-chip" style="background:#FFD93D;animation-delay:0s">😊 기쁨</span>
+        <span class="feeling-chip" style="background:#6BCEFF;animation-delay:0.2s">😢 슬픔</span>
+        <span class="feeling-chip" style="background:#FF6B6B;animation-delay:0.4s">😠 화남</span>
+        <span class="feeling-chip" style="background:#C77DFF;animation-delay:0.6s">😨 무서움</span>
+        <span class="feeling-chip" style="background:#FF9A3C;animation-delay:0.8s">🦁 용감함</span>
+      </div>
+      <textarea class="jar-input" placeholder="오늘 나는... 왜냐하면..."></textarea>
+
+      <h3 style="margin-top:20px">💬 이야기 나눠보기</h3>
+      <ol>
+        <li>왜 그런 감정을 느꼈나요?</li>
+        <li>몸 어디에서 그 감정이 느껴졌나요?</li>
+        <li>기분이 나아지려면 어떻게 했나요?</li>
+        <li>가장 어려운 감정과 쉬운 감정은 무엇이었나요?</li>
+      </ol>
+    </div>
+
+    <div class="purchase-strip">
+      <h3>📖 이 이야기가 마음에 드셨나요?</h3>
+      <p>루나의 무지개를 모든 아이들과 나눠보세요.<br>영어 버전도 있어요 — English version available! 🇺🇸</p>
+      <a href="#" class="buy-btn">전체 번들 구매하기 ✨</a>
+    </div>
+  </div>
+
+</div><!-- /book -->
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <button class="btn btn-prev" id="prevBtn" onclick="changePage(-1)">← 이전</button>
+  <span class="page-counter" id="counter">1 / 12</span>
+  <button class="btn btn-next" id="nextBtn" onclick="changePage(1)">다음 →</button>
+</nav>
+
+<script>
+  let current = 1;
+  const total = 12;
+
+  function changePage(dir) {
+    const oldPage = document.getElementById('page-' + current);
+    oldPage.classList.remove('active');
+    current = Math.max(1, Math.min(total, current + dir));
+    const newPage = document.getElementById('page-' + current);
+    newPage.classList.add('active');
+    document.getElementById('progress-bar').style.width = ((current / total) * 100) + '%';
+    document.getElementById('counter').textContent = current + ' / ' + total;
+    document.getElementById('prevBtn').style.opacity = current === 1 ? '0.3' : '1';
+    document.getElementById('nextBtn').textContent = current === total ? '🎉 끝!' : '다음 →';
+    document.getElementById('nextBtn').disabled = current === total;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changePage(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changePage(-1);
+  });
+
+  let startX = 0;
+  document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) changePage(dx < 0 ? 1 : -1);
+  });
+
+  document.getElementById('prevBtn').style.opacity = '0.3';
+</script>
+</body>
+</html>
