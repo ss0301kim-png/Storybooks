@@ -218,11 +218,11 @@
 
   /* ── PAYWALL ── */
   #page-lock {
-    display:none; flex-direction:column; align-items:center;
+    display:none !important; flex-direction:column; align-items:center;
     justify-content:flex-start; padding: 80px 20px 40px;
     min-height:100vh;
   }
-  #page-lock.active { display:flex; }
+  #page-lock.active { display:flex !important; flex-direction:column; align-items:center; justify-content:flex-start; }
   .lock-wrap {
     max-width:520px; width:100%; text-align:center;
   }
@@ -454,7 +454,7 @@
   <!-- PAGE 3: MAGICAL JAR -->
   <div class="page" 
   <!-- ═══════════════ PAYWALL PAGE ═══════════════ -->
-  <div class="page" id="page-lock">
+  <div id="page-lock">
     <div class="lock-wrap">
       <div class="lock-badge">미리보기 2 / 12</div>
       <div class="lock-books">
@@ -1074,6 +1074,7 @@
         document.getElementById('page-lock').querySelector('.lock-btn-primary').click();
       };
       lockShown = true;
+      window.scrollTo({top:0,behavior:"smooth"});
     }
   }
   function hideLock() {
