@@ -47,6 +47,95 @@
   .friend-strip h3{font-family:'Fredoka One';font-size:1.4rem;margin-bottom:6px;}
   .friend-strip p{font-size:0.95rem;opacity:0.9;margin-bottom:14px;}
   .friend-btn{display:inline-block;background:#1C0A2E;color:#A78BFA;font-family:'Fredoka One';font-size:1rem;padding:11px 26px;border-radius:30px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,0.3);}
+
+  /* ── PAYWALL ── */
+  #page-lock {
+    display:none; flex-direction:column; align-items:center;
+    justify-content:flex-start; padding: 80px 20px 40px;
+    min-height:100vh;
+  }
+  #page-lock.active { display:flex; }
+  .lock-wrap {
+    max-width:520px; width:100%; text-align:center;
+  }
+  .lock-badge {
+    display:inline-block;
+    background: linear-gradient(135deg,#9B59B6,#C39BD3);
+    color:#fff; font-weight:800; font-size:.85rem;
+    padding:6px 18px; border-radius:20px; margin-bottom:20px;
+    letter-spacing:.5px;
+  }
+  .lock-books {
+    display:flex; justify-content:center; gap:10px; margin-bottom:12px;
+  }
+  .lock-page-thumb {
+    width:90px; height:120px; border-radius:10px;
+    background: linear-gradient(135deg,#9B59B633,#C39BD333);
+    border:2px solid #9B59B666;
+    display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden;
+  }
+  .lock-page-thumb.blurred {
+    filter: blur(4px) brightness(.7);
+  }
+  .lock-icon {
+    font-size:2rem; position:absolute;
+    filter: blur(0) brightness(2);
+  }
+  .lock-remaining {
+    font-size:.85rem; color:#888; margin-bottom:12px; font-weight:600;
+  }
+  .lock-title {
+    font-family:'Fredoka One','Noto Sans KR',sans-serif;
+    font-size:1.8rem;
+    background: linear-gradient(135deg,#9B59B6,#C39BD3);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    margin-bottom:12px; line-height:1.3;
+  }
+  .lock-teaser {
+    font-size:.95rem; line-height:1.6; color:var(--text,#444);
+    margin-bottom:16px; padding:0 8px;
+  }
+  .lock-includes {
+    background: linear-gradient(135deg,#9B59B615,#C39BD315);
+    border-radius:14px; padding:14px 20px; margin-bottom:16px;
+    text-align:left;
+  }
+  .lock-includes ul { list-style:none; padding:0; }
+  .lock-includes li { padding:4px 0; font-size:.9rem; font-weight:600; }
+  .lock-stars {
+    font-size:1rem; margin-bottom:20px; color:#888;
+  }
+  .lock-stars span { font-weight:700; color:var(--text,#444); }
+  .lock-btn-primary {
+    display:block; width:100%;
+    background: linear-gradient(135deg,#9B59B6,#C39BD3);
+    color:#fff; text-decoration:none;
+    padding:16px 24px; border-radius:50px;
+    font-family:'Fredoka One','Noto Sans KR',sans-serif;
+    font-size:1.25rem; font-weight:700;
+    box-shadow: 0 6px 20px #9B59B655;
+    margin-bottom:12px;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .lock-btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 28px #9B59B677; }
+  .lock-btn-secondary {
+    display:block; width:100%;
+    background: transparent;
+    color:#9B59B6; text-decoration:none;
+    padding:13px 24px; border-radius:50px;
+    border:2px solid #9B59B6;
+    font-family:'Fredoka One','Noto Sans KR',sans-serif;
+    font-size:1rem; font-weight:700;
+    margin-bottom:16px;
+    transition: background .15s;
+  }
+  .lock-btn-secondary:hover { background:#9B59B615; }
+  .lock-fine {
+    font-size:.78rem; color:#aaa; line-height:1.6;
+  }
+
 </style>
 </head>
 <body>
@@ -174,7 +263,38 @@
 </div>
 
 <!-- PAGE 3 -->
-<div class="page" id="page-3">
+<div class="page" 
+  <!-- ═══════════════ PAYWALL PAGE ═══════════════ -->
+  <div class="page" id="page-lock">
+    <div class="lock-wrap">
+      <div class="lock-badge">Preview: 2 of 10 pages</div>
+      <div class="lock-books">
+        <div class="lock-page-thumb thumb-1"></div>
+        <div class="lock-page-thumb thumb-2 blurred">
+          <div class="lock-icon">🔒</div>
+        </div>
+        <div class="lock-page-thumb thumb-3 blurred">
+          <div class="lock-icon">🔒</div>
+        </div>
+      </div>
+      <p class="lock-remaining">8 more pages locked</p>
+      <h2 class="lock-title">Unlock the Full Story</h2>
+      <p class="lock-teaser">What's the monster's name, and why is he actually hiding under YOUR bed? The heartwarming twist is on pages 5–10! 👾💜</p>
+      <div class="lock-includes">
+        <ul><li>✅ 10 interactive pages</li>
+<li>✅ English version</li>
+<li>✅ Bilingual EN+KR bundle available</li>
+<li>✅ Activity pages</li></ul>
+      </div>
+      <div class="lock-stars">⭐⭐⭐⭐⭐ <span>Loved by Parents & Teachers</span></div>
+      <a href="https://gumroad.com/l/GUMROAD_ID" target="_blank" class="lock-btn-primary">🛒 Get the Full Book — $4.99</a>
+      <a href="https://gumroad.com/l/GUMROAD_ID?bundle=1" target="_blank" class="lock-btn-secondary">📚 Get All 5 Books Bundle — $19.99</a>
+      <p class="lock-fine">Instant Download • Works on Any Device • HTML + ZIP</p>
+    </div>
+  </div>
+  <!-- ═══════════════ END PAYWALL ═══════════════ -->
+
+  <div class="page" id="page-3">
   <p class="page-heading" style="color:#34D399">👾 Meet Moo!</p>
   <div class="illo">
     <svg viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg">
@@ -596,8 +716,50 @@
   <button class="btn btn-next" id="nextBtn" onclick="changePage(1)">Next →</button>
 </nav>
 <script>
-  let current=1;const total=10;
+  
+  /* ── PAYWALL LOGIC ── */
+  let lockShown = false;
+  function showLock() {
+    if (!lockShown) {
+      document.getElementById('page-'+current).classList.remove('active');
+      document.getElementById('page-lock').classList.add('active');
+      document.getElementById('progress-bar').style.width='18%';
+      document.getElementById('counter').textContent='🔒 Preview';
+      document.getElementById('prevBtn').style.opacity='1';
+      document.getElementById('prevBtn').style.pointerEvents='auto';
+      document.getElementById('nextBtn').textContent='🛒 Buy Now';
+      document.getElementById('nextBtn').style.opacity='1';
+      document.getElementById('nextBtn').disabled=false;
+      document.getElementById('nextBtn').onclick=function(){
+        document.getElementById('page-lock').querySelector('.lock-btn-primary').click();
+      };
+      lockShown = true;
+    }
+  }
+  function hideLock() {
+    if (lockShown) {
+      document.getElementById('page-lock').classList.remove('active');
+      lockShown = false;
+      // restore nextBtn
+      document.getElementById('nextBtn').onclick=null;
+    }
+  }
+
+  let current=1;let current=1;
+  const total=10;
   function changePage(d){
+    /* paywall intercept */
+    if (lockShown && d === -1) { hideLock(); document.getElementById('page-'+current).classList.add('active'); (function(){
+      document.getElementById('progress-bar').style.width=((current/total)*100)+'%';
+      document.getElementById('counter').textContent=current+' / '+total;
+      document.getElementById('prevBtn').style.opacity=current===1?'0.3':'1';
+      document.getElementById('nextBtn').textContent=current===total?'🎉 The End!':'Next →';
+      document.getElementById('nextBtn').disabled=current===total;
+      document.getElementById('nextBtn').onclick=null;
+    })(); return; }
+    if (!lockShown && current === 2 && d === 1) { showLock(); return; }
+    if (lockShown) { return; }
+    
     document.getElementById('page-'+current).classList.remove('active');
     current=Math.max(1,Math.min(total,current+d));
     document.getElementById('page-'+current).classList.add('active');

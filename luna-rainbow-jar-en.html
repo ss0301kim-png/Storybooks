@@ -222,6 +222,95 @@
     transition:transform 0.2s;
   }
   .buy-btn:hover { transform:scale(1.05); }
+
+  /* ── PAYWALL ── */
+  #page-lock {
+    display:none; flex-direction:column; align-items:center;
+    justify-content:flex-start; padding: 80px 20px 40px;
+    min-height:100vh;
+  }
+  #page-lock.active { display:flex; }
+  .lock-wrap {
+    max-width:520px; width:100%; text-align:center;
+  }
+  .lock-badge {
+    display:inline-block;
+    background: linear-gradient(135deg,#FF9A3C,#FFD93D);
+    color:#fff; font-weight:800; font-size:.85rem;
+    padding:6px 18px; border-radius:20px; margin-bottom:20px;
+    letter-spacing:.5px;
+  }
+  .lock-books {
+    display:flex; justify-content:center; gap:10px; margin-bottom:12px;
+  }
+  .lock-page-thumb {
+    width:90px; height:120px; border-radius:10px;
+    background: linear-gradient(135deg,#FF9A3C33,#FFD93D33);
+    border:2px solid #FF9A3C66;
+    display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden;
+  }
+  .lock-page-thumb.blurred {
+    filter: blur(4px) brightness(.7);
+  }
+  .lock-icon {
+    font-size:2rem; position:absolute;
+    filter: blur(0) brightness(2);
+  }
+  .lock-remaining {
+    font-size:.85rem; color:#888; margin-bottom:12px; font-weight:600;
+  }
+  .lock-title {
+    font-family:'Fredoka One','Noto Sans KR',sans-serif;
+    font-size:1.8rem;
+    background: linear-gradient(135deg,#FF9A3C,#FFD93D);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    margin-bottom:12px; line-height:1.3;
+  }
+  .lock-teaser {
+    font-size:.95rem; line-height:1.6; color:var(--text,#444);
+    margin-bottom:16px; padding:0 8px;
+  }
+  .lock-includes {
+    background: linear-gradient(135deg,#FF9A3C15,#FFD93D15);
+    border-radius:14px; padding:14px 20px; margin-bottom:16px;
+    text-align:left;
+  }
+  .lock-includes ul { list-style:none; padding:0; }
+  .lock-includes li { padding:4px 0; font-size:.9rem; font-weight:600; }
+  .lock-stars {
+    font-size:1rem; margin-bottom:20px; color:#888;
+  }
+  .lock-stars span { font-weight:700; color:var(--text,#444); }
+  .lock-btn-primary {
+    display:block; width:100%;
+    background: linear-gradient(135deg,#FF9A3C,#FFD93D);
+    color:#fff; text-decoration:none;
+    padding:16px 24px; border-radius:50px;
+    font-family:'Fredoka One','Noto Sans KR',sans-serif;
+    font-size:1.25rem; font-weight:700;
+    box-shadow: 0 6px 20px #FF9A3C55;
+    margin-bottom:12px;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .lock-btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 28px #FF9A3C77; }
+  .lock-btn-secondary {
+    display:block; width:100%;
+    background: transparent;
+    color:#FF9A3C; text-decoration:none;
+    padding:13px 24px; border-radius:50px;
+    border:2px solid #FF9A3C;
+    font-family:'Fredoka One','Noto Sans KR',sans-serif;
+    font-size:1rem; font-weight:700;
+    margin-bottom:16px;
+    transition: background .15s;
+  }
+  .lock-btn-secondary:hover { background:#FF9A3C15; }
+  .lock-fine {
+    font-size:.78rem; color:#aaa; line-height:1.6;
+  }
+
 </style>
 </head>
 <body>
@@ -401,6 +490,37 @@
   </div>
 
   <!-- PAGE 3: THE MAGICAL JAR -->
+  <div class="page" 
+  <!-- ═══════════════ PAYWALL PAGE ═══════════════ -->
+  <div class="page" id="page-lock">
+    <div class="lock-wrap">
+      <div class="lock-badge">Preview: 2 of 12 pages</div>
+      <div class="lock-books">
+        <div class="lock-page-thumb thumb-1"></div>
+        <div class="lock-page-thumb thumb-2 blurred">
+          <div class="lock-icon">🔒</div>
+        </div>
+        <div class="lock-page-thumb thumb-3 blurred">
+          <div class="lock-icon">🔒</div>
+        </div>
+      </div>
+      <p class="lock-remaining">10 more pages locked</p>
+      <h2 class="lock-title">Unlock the Full Story</h2>
+      <p class="lock-teaser">What happens when Luna's jar overflows with ALL her feelings at once? The magical ending on pages 8–12 will surprise you! ✨</p>
+      <div class="lock-includes">
+        <ul><li>✅ 12 interactive pages</li>
+<li>✅ English version</li>
+<li>✅ Bilingual EN+KR bundle available</li>
+<li>✅ Activity pages</li></ul>
+      </div>
+      <div class="lock-stars">⭐⭐⭐⭐⭐ <span>Loved by Parents & Teachers</span></div>
+      <a href="https://gumroad.com/l/GUMROAD_ID" target="_blank" class="lock-btn-primary">🛒 Get the Full Book — $4.99</a>
+      <a href="https://gumroad.com/l/GUMROAD_ID?bundle=1" target="_blank" class="lock-btn-secondary">📚 Get All 5 Books Bundle — $19.99</a>
+      <p class="lock-fine">Instant Download • Works on Any Device • HTML + ZIP</p>
+    </div>
+  </div>
+  <!-- ═══════════════ END PAYWALL ═══════════════ -->
+
   <div class="page" id="page-3">
     <div class="illo">
       <svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
@@ -1100,10 +1220,51 @@
 </nav>
 
 <script>
-  let current = 1;
+  
+  /* ── PAYWALL LOGIC ── */
+  let lockShown = false;
+  function showLock() {
+    if (!lockShown) {
+      document.getElementById('page-'+current).classList.remove('active');
+      document.getElementById('page-lock').classList.add('active');
+      document.getElementById('progress-bar').style.width='18%';
+      document.getElementById('counter').textContent='🔒 Preview';
+      document.getElementById('prevBtn').style.opacity='1';
+      document.getElementById('prevBtn').style.pointerEvents='auto';
+      document.getElementById('nextBtn').textContent='🛒 Buy Now';
+      document.getElementById('nextBtn').style.opacity='1';
+      document.getElementById('nextBtn').disabled=false;
+      document.getElementById('nextBtn').onclick=function(){
+        document.getElementById('page-lock').querySelector('.lock-btn-primary').click();
+      };
+      lockShown = true;
+    }
+  }
+  function hideLock() {
+    if (lockShown) {
+      document.getElementById('page-lock').classList.remove('active');
+      lockShown = false;
+      // restore nextBtn
+      document.getElementById('nextBtn').onclick=null;
+    }
+  }
+
+  let current=1;
   const total = 12;
 
   function changePage(dir) {
+    /* paywall intercept */
+    if (lockShown && dir === -1) { hideLock(); document.getElementById('page-'+current).classList.add('active'); (function(){
+      document.getElementById('progress-bar').style.width=((current/total)*100)+'%';
+      document.getElementById('counter').textContent=current+' / '+total;
+      document.getElementById('prevBtn').style.opacity=current===1?'0.3':'1';
+      document.getElementById('nextBtn').textContent=current===total?'🎉 The End!':'Next →';
+      document.getElementById('nextBtn').disabled=current===total;
+      document.getElementById('nextBtn').onclick=null;
+    })(); return; }
+    if (!lockShown && current === 2 && dir === 1) { showLock(); return; }
+    if (lockShown) { return; }
+    
     const oldPage = document.getElementById('page-' + current);
     oldPage.classList.remove('active');
     current = Math.max(1, Math.min(total, current + dir));
