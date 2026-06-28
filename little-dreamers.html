@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Dreamers Storybook Series | 꿈꾸는 아이들 시리즈</title>
+<meta name="description" content="Magical watercolor fantasy storybooks for children ages 4–7. Available in English and Korean. Instant PDF download on Gumroad and Etsy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple: #6b35b8;
+  --purple-light: #9b60e8;
+  --pink: #f472b6;
+  --peach: #fbbf7a;
+  --sky: #60c8f8;
+  --mint: #4cd8a8;
+  --gold: #fcd34d;
+  --dark: #1e1040;
+  --text: #2d1a5e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito', 'Noto Sans KR', sans-serif;
+  background: #faf7ff;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ── LANG TOGGLE ── */
+.lang-bar {
+  position: fixed; top: 0; right: 0; left: 0; z-index: 100;
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: 8px; padding: 10px 24px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(107,53,184,0.12);
+}
+.lang-btn {
+  padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--purple-light);
+  background: white; color: var(--purple); font-weight: 700; font-size: 12px;
+  cursor: pointer; transition: all .2s;
+}
+.lang-btn.active, .lang-btn:hover { background: var(--purple); color: white; }
+.logo-bar { margin-right: auto; font-family: 'Fredoka One', cursive; font-size: 18px; color: var(--purple); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e1040 0%, #3a1580 40%, #6b1f9e 70%, #9b1faa 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 100px 24px 60px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(100,180,255,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(255,120,200,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 90%, rgba(180,100,255,0.2) 0%, transparent 50%);
+}
+.hero-stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.star {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%; background: white;
+  animation: twinkle 3s ease-in-out infinite;
+}
+@keyframes twinkle { 0%,100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.5); } }
+
+.hero-badge {
+  position: relative;
+  display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px; padding: 6px 20px; font-size: 12px; color: rgba(255,255,255,0.85);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; backdrop-filter: blur(8px);
+}
+.hero h1 {
+  position: relative;
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(36px, 6vw, 72px);
+  color: white;
+  line-height: 1.1;
+  text-shadow: 0 4px 30px rgba(150,100,255,0.5);
+  margin-bottom: 8px;
+}
+.hero-ko {
+  position: relative;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: clamp(20px, 3vw, 36px);
+  color: rgba(255,255,255,0.75);
+  font-weight: 700; margin-bottom: 20px;
+}
+.hero-sub {
+  position: relative;
+  font-size: 16px; color: rgba(255,255,255,0.7);
+  max-width: 540px; line-height: 1.7; margin-bottom: 36px;
+}
+.hero-emojis { font-size: 32px; margin-bottom: 24px; letter-spacing: 4px; }
+.cta-row { position: relative; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 50px; font-weight: 800; font-size: 15px;
+  text-decoration: none; transition: all .25s; border: none; cursor: pointer;
+}
+.btn-gumroad { background: linear-gradient(135deg, #ff90d0, #ff4fa8); color: white; }
+.btn-etsy    { background: linear-gradient(135deg, #ff9f43, #f0623a); color: white; }
+.btn-github  { background: rgba(255,255,255,0.12); color: white; border: 1.5px solid rgba(255,255,255,0.3); backdrop-filter: blur(8px); }
+.btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+
+/* wave */
+.wave { display: block; margin-top: -2px; }
+
+/* ── SECTION ── */
+.section { padding: 72px 24px; }
+.section-title {
+  text-align: center; font-family: 'Fredoka One', cursive;
+  font-size: clamp(28px, 4vw, 48px); color: var(--purple); margin-bottom: 8px;
+}
+.section-sub { text-align: center; color: #7a5ab0; font-size: 16px; margin-bottom: 48px; }
+
+/* ── BOOK GRID ── */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px; max-width: 1100px; margin: 0 auto;
+}
+
+.book-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(107,53,184,0.1);
+  transition: all .3s;
+  border: 1px solid rgba(107,53,184,0.08);
+}
+.book-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(107,53,184,0.2); }
+
+.book-cover {
+  height: 180px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px; position: relative; overflow: hidden;
+}
+.book-cover-6en { background: linear-gradient(135deg, #b8e4f9, #d4b8f9, #f9b8d4); }
+.book-cover-7en { background: linear-gradient(135deg, #ffe8c0, #ffd4a0, #ff9050); }
+.book-cover-8en { background: linear-gradient(135deg, #0a0a2a, #2a1080, #4a20a0); }
+.book-cover-6ko { background: linear-gradient(135deg, #c8b8ff, #b8d4ff, #f0b8ff); }
+.book-cover-7ko { background: linear-gradient(135deg, #c0f0c0, #a0e0a0, #60c060); }
+.book-cover-8ko { background: linear-gradient(135deg, #1a0a40, #301868, #5028a0); }
+.book-cover-tpl { background: linear-gradient(135deg, #f0e8ff, #e8f0ff, #fff0f8); }
+.book-cover-bundle-en { background: linear-gradient(135deg, #ffd4f0, #d4b8ff, #b8e4f9); }
+.book-cover-bundle-ko { background: linear-gradient(135deg, #ffc8a0, #ffa0d0, #c0a0ff); }
+
+.book-num {
+  position: absolute; top: 12px; left: 12px;
+  background: rgba(255,255,255,0.85); border-radius: 10px;
+  padding: 2px 10px; font-size: 11px; font-weight: 800; color: var(--purple);
+}
+.book-lang {
+  position: absolute; top: 12px; right: 12px;
+  border-radius: 10px; padding: 2px 10px; font-size: 11px; font-weight: 800;
+}
+.lang-en { background: #3b5bdb; color: white; }
+.lang-ko { background: #c92a2a; color: white; }
+.lang-bi { background: linear-gradient(90deg,#3b5bdb,#c92a2a); color: white; }
+
+.book-body { padding: 18px 20px 20px; }
+.book-title { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--dark); margin-bottom: 4px; line-height: 1.3; }
+.book-title-ko { font-size: 14px; color: #7a5ab0; font-weight: 700; margin-bottom: 8px; }
+.book-desc { font-size: 13px; color: #6a5080; line-height: 1.6; margin-bottom: 14px; }
+.book-moral { font-size: 12px; color: #9060c0; font-style: italic; background: #f8f4ff; border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; }
+.book-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.tag {
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+  background: #f0eaff; color: var(--purple);
+}
+.book-btns { display: flex; gap: 8px; }
+.btn-sm {
+  flex: 1; text-align: center; padding: 9px 12px; border-radius: 12px;
+  font-size: 12px; font-weight: 800; text-decoration: none; transition: all .2s;
+}
+.btn-sm-g { background: linear-gradient(135deg,#ff90d0,#ff4fa8); color: white; }
+.btn-sm-e { background: linear-gradient(135deg,#ff9f43,#f0623a); color: white; }
+.btn-sm:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+/* coming soon overlay */
+.coming-soon-card { opacity: 0.65; }
+.coming-badge {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  background: rgba(0,0,0,0.55); color: white; border-radius: 12px;
+  padding: 6px 16px; font-size: 13px; font-weight: 800; white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* ── HOW IT WORKS ── */
+.how { background: linear-gradient(135deg, #2d1a5e 0%, #4a1a8e 100%); color: white; }
+.steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
+.step { text-align: center; padding: 24px 16px; }
+.step-icon { font-size: 36px; margin-bottom: 12px; }
+.step h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.step p { font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.6; }
+
+/* ── FEATURES ── */
+.features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; max-width: 960px; margin: 0 auto; }
+.feature {
+  background: white; border-radius: 16px; padding: 24px 20px;
+  box-shadow: 0 2px 16px rgba(107,53,184,0.08);
+  border: 1px solid rgba(107,53,184,0.06);
+}
+.feature-icon { font-size: 28px; margin-bottom: 10px; }
+.feature h3 { font-size: 15px; font-weight: 800; color: var(--dark); margin-bottom: 6px; }
+.feature p { font-size: 13px; color: #7a5ab0; line-height: 1.6; }
+
+/* ── TEMPLATE SECTION ── */
+.tpl-section { background: linear-gradient(135deg, #fff0f8, #f0f0ff, #f0fff8); }
+
+/* ── PRICING ── */
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; max-width: 960px; margin: 0 auto; }
+.price-card {
+  background: white; border-radius: 20px; padding: 28px 24px; text-align: center;
+  box-shadow: 0 4px 24px rgba(107,53,184,0.1);
+  border: 1px solid rgba(107,53,184,0.08);
+  position: relative;
+}
+.price-card.featured {
+  background: linear-gradient(135deg, var(--purple), var(--purple-light));
+  color: white; border: none;
+}
+.price-card.featured .price-sub { color: rgba(255,255,255,0.75); }
+.price-label {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--gold); color: #7a4000; border-radius: 20px;
+  padding: 4px 16px; font-size: 11px; font-weight: 800; white-space: nowrap;
+}
+.price-icon { font-size: 32px; margin-bottom: 10px; }
+.price-title { font-family: 'Fredoka One', cursive; font-size: 18px; margin-bottom: 4px; }
+.price-sub { font-size: 12px; color: #9060c0; margin-bottom: 16px; }
+.price-amount { font-size: 36px; font-weight: 900; color: var(--purple); margin-bottom: 4px; }
+.price-card.featured .price-amount { color: white; }
+.price-kr { font-size: 14px; color: #9060c0; margin-bottom: 16px; }
+.price-card.featured .price-kr { color: rgba(255,255,255,0.75); }
+.price-list { list-style: none; font-size: 13px; color: #6a5080; text-align: left; margin-bottom: 20px; }
+.price-card.featured .price-list { color: rgba(255,255,255,0.85); }
+.price-list li { padding: 4px 0; }
+.price-list li::before { content: '✓ '; color: var(--mint); font-weight: 800; }
+.price-card.featured .price-list li::before { color: var(--gold); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--dark);
+  color: rgba(255,255,255,0.65);
+  text-align: center; padding: 40px 24px;
+  font-size: 13px; line-height: 2;
+}
+footer a { color: var(--purple-light); text-decoration: none; }
+footer a:hover { color: var(--pink); }
+.footer-logo { font-family: 'Fredoka One', cursive; font-size: 24px; color: white; margin-bottom: 10px; }
+
+/* ── LANG SHOW/HIDE ── */
+[data-lang="ko"] { display: none; }
+body.ko [data-lang="ko"] { display: block; }
+body.ko [data-lang="en"] { display: none; }
+span[data-lang="ko"] { display: none; }
+body.ko span[data-lang="ko"] { display: inline; }
+body.ko span[data-lang="en"] { display: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .cta-row { flex-direction: column; align-items: center; }
+  .book-btns { flex-direction: column; }
+  .btn-sm { flex: none; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div class="lang-bar">
+  <div class="logo-bar">🌈 Little Dreamers</div>
+  <button class="lang-btn active" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" onclick="setLang('ko')">한국어</button>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-stars" id="stars"></div>
+  <div class="hero-badge">✨ Digital Download · Instant PDF · Print-Ready</div>
+  <h1 data-lang="en">Little Dreamers<br>Storybook Series</h1>
+  <h1 data-lang="ko" style="font-family:'Noto Sans KR',sans-serif;">꿈꾸는 아이들<br>스토리북 시리즈</h1>
+  <div class="hero-ko" data-lang="en">꿈꾸는 아이들 시리즈</div>
+  <div class="hero-emojis">🌈🐉🌙☁️⭐🦋</div>
+  <p class="hero-sub" data-lang="en">Magical watercolor fantasy storybooks for children ages 4–7. 8 books, bilingual English &amp; Korean editions. Beautifully illustrated, print-ready PDFs.</p>
+  <p class="hero-sub" data-lang="ko">4~7세 어린이를 위한 마법 같은 수채화 판타지 스토리북. 영어·한국어 8권 시리즈. 아름다운 일러스트, 즉시 인쇄 가능한 PDF.</p>
+  <div class="cta-row">
+    <a href="https://yunslestories.gumroad.com" class="btn btn-gumroad" target="_blank">🛒 <span data-lang="en">Buy on Gumroad</span><span data-lang="ko">Gumroad에서 구매</span></a>
+    <a href="https://www.etsy.com/shop/SangSooKimStudio" class="btn btn-etsy" target="_blank">🏪 <span data-lang="en">Shop on Etsy</span><span data-lang="ko">Etsy에서 구매</span></a>
+    <a href="https://github.com" class="btn btn-github" target="_blank">⭐ <span data-lang="en">View on GitHub</span><span data-lang="ko">GitHub 보기</span></a>
+  </div>
+</section>
+
+<svg class="wave" viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;background:#1e1040;margin-top:-1px;">
+  <path d="M0,40 C360,80 1080,0 1440,40 L1440,60 L0,60 Z" fill="#faf7ff"/>
+</svg>
+
+<!-- BOOKS -->
+<section class="section">
+  <div class="section-title" data-lang="en">📚 The Full Series</div>
+  <div class="section-title" data-lang="ko">📚 전체 시리즈</div>
+  <div class="section-sub" data-lang="en">8 books · Watercolor fantasy · Ages 4–7 · English &amp; Korean editions</div>
+  <div class="section-sub" data-lang="ko">8권 · 수채화 판타지 · 4~7세 · 영어 &amp; 한국어판</div>
+
+  <div class="books-grid">
+
+    <!-- Books 1-5: Coming Soon -->
+    <div class="book-card coming-soon-card">
+      <div class="book-cover book-cover-bundle-en" style="background:linear-gradient(135deg,#ffe0e0,#ffd0b0,#ffe0d0);">
+        <div class="book-num">Books 1–5</div>
+        <span>🌟🌈🐲🧚✨</span>
+        <div class="coming-badge" data-lang="en">Coming Soon</div>
+        <div class="coming-badge" data-lang="ko">출시 예정</div>
+      </div>
+      <div class="book-body">
+        <div class="book-title" data-lang="en">Books 1–5 · Original Series</div>
+        <div class="book-title" data-lang="ko">1~5권 · 오리지널 시리즈</div>
+        <div class="book-desc" data-lang="en">The first 5 adventures in the Little Dreamers world — coming soon to Gumroad &amp; Etsy!</div>
+        <div class="book-desc" data-lang="ko">꿈꾸는 아이들 세계의 첫 5가지 모험 — Gumroad &amp; Etsy에서 곧 출시!</div>
+        <div class="book-meta"><span class="tag">Ages 4–7</span><span class="tag">EN + KO</span><span class="tag">Coming Soon</span></div>
+      </div>
+    </div>
+
+    <!-- Book 6 EN -->
+    <div class="book-card">
+      <div class="book-cover book-cover-6en">
+        <div class="book-num">Book 6</div>
+        <div class="book-lang lang-en">EN</div>
+        <span>🌈☁️👑</span>
+      </div>
+      <div class="book-body">
+        <div class="book-title">The Cloud Princess and the Lost Rainbow</div>
+        <div class="book-title-ko">구름 공주와 사라진 무지개 (영어판)</div>
+        <div class="book-desc" data-lang="en">Princess Sora discovers a lonely storm cloud stole the rainbow — and turns it into her best friend.</div>
+        <div class="book-desc" data-lang="ko">소라 공주가 외로운 폭풍 구름과 친구가 되어 무지개를 되찾아요.</div>
+        <div class="book-moral" data-lang="en">💜 "True friendship makes the world colourful."</div>
+        <div class="book-moral" data-lang="ko">💜 "진정한 우정은 세상을 아름답게 물들여요."</div>
+        <div class="book-meta"><span class="tag">Ages 4–7</span><span class="tag">10 pages</span><span class="tag">PDF</span><span class="tag">English</span></div>
+        <div class="book-btns">
+          <a href="https://yunslestories.gumroad.com/l/tybpb" class="btn-sm btn-sm-g" target="_blank">🛒 Gumroad</a>
+          <a href="https://www.etsy.com/listing/4529336695" class="btn-sm btn-sm-e" target="_blank">🏪 Etsy</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book 6 KO -->
+    <div class="book-card">
+      <div class="book-cover book-cover-6ko">
+        <div class="book-num">6권</div>
+        <div class="book-lang lang-ko">KO</div>
+        <span>🌈☁️👑</span>
+      </div>
+      <div class="book-body">
+        <div class="book-title">구름 공주와 사라진 무지개</div>
+        <div class="book-title-ko">The Cloud Princess (한국어판)</div>
+        <div class="book-desc" data-lang="en">Korean edition — Princess Sora befriends a lonely storm cloud and brings back the rainbow.</div>
+        <div class="book-desc" data-lang="ko">소라 공주가 외로운 폭풍 구름과 친구가 되어 무지개를 되찾는 이야기 (한국어판).</div>
+        <div class="book-moral" data-lang="en">💜 "진정한 우정은 세상을 아름답게 물들여요."</div>
+        <div class="book-moral" data-lang="ko">💜 "진정한 우정은 세상을 아름답게 물들여요."</div>
+        <div class="book-meta"><span class="tag">4~7세</span><span class="tag">10 페이지</span><span class="tag">PDF</span><span class="tag">한국어</span></div>
+        <div class="book-btns">
+          <a href="https://yunslestories.gumroad.com/l/tybpb" class="btn-sm btn-sm-g" target="_blank">🛒 Gumroad</a>
+          <a href="https://www.etsy.com/listing/4529336695" class="btn-sm btn-sm-e" target="_blank">🏪 Etsy</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book 7 EN -->
+    <div class="book-card">
+      <div class="book-cover book-cover-7en">
+        <div class="book-num">Book 7</div>
+        <div class="book-lang lang-en">EN</div>
+        <span>🐉💧🌿</span>
+      </div>
+      <div class="book-body">
+        <div class="book-title">The Brave Little Dragon</div>
+        <div class="book-title-ko">용감한 작은 용 (영어판)</div>
+        <div class="book-desc" data-lang="en">Blaze can't breathe fire like other dragons — but his cool mist saves the whole forest.</div>
+        <div class="book-desc" data-lang="ko">불꽃이는 불을 내뿜지 못하지만, 자신만의 안개 능력으로 숲을 구해요.</div>
+        <div class="book-moral" data-lang="en">🌿 "You don't have to be like everyone else to be wonderful."</div>
+        <div class="book-moral" data-lang="ko">🌿 "다른 사람과 달라도 멋질 수 있어요."</div>
+        <div class="book-meta"><span class="tag">Ages 4–7</span><span class="tag">8 pages</span><span class="tag">PDF</span><span class="tag">English</span></div>
+        <div class="book-btns">
+          <a href="https://yunslestories.gumroad.com/l/cmfasqt" class="btn-sm btn-sm-g" target="_blank">🛒 Gumroad</a>
+          <a href="https://www.etsy.com/listing/4529342617" class="btn-sm btn-sm-e" target="_blank">🏪 Etsy</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book 7 KO -->
+    <div class="book-card">
+      <div class="book-cover book-cover-7ko">
+        <div class="book-num">7권</div>
+        <div class="book-lang lang-ko">KO</div>
+        <span>🐉💧🌿</span>
+      </div>
+      <div class="book-body">
+        <div class="book-title">용감한 작은 용</div>
+        <div class="book-title-ko">The Brave Little Dragon (한국어판)</div>
+        <div class="book-desc" data-lang="en">Korean edition — Little Blaze discovers his cool mist is the forest's greatest gift.</div>
+        <div class="book-desc" data-lang="ko">작은 용 불꽃이가 자신만의 특별한 안개 능력을 발견하는 이야기 (한국어판).</div>
+        <div class="book-moral" data-lang="en">🌿 "다른 사람과 달라도 멋질 수 있어요."</div>
+        <div class="book-moral" data-lang="ko">🌿 "다른 사람과 달라도 멋질 수 있어요."</div>
+        <div class="book-meta"><span class="tag">4~7세</span><span class="tag">8 페이지</span><span class="tag">PDF</span><span class="tag">한국어</span></div>
+        <div class="book-btns">
+          <a href="https://yunslestories.gumroad.com/l/cmfasqt" class="btn-sm btn-sm-g" target="_blank">🛒 Gumroad</a>
+          <a href="https://www.etsy.com/listing/4529342617" class="btn-sm btn-sm-e" target="_blank">🏪 Etsy</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book 8 EN -->
+    <div class="book-card">
+      <div class="book-cover book-cover-8en">
+        <div class="book-num">Book 8</div>
+        <div class="book-lang lang-en">EN</div>
+        <span>🌙🐰🦌</span>
+      </div>
+      <div class="book-body">
+        <div class="book-title">The Moonlight Forest Adventure</div>
+        <div class="book-title-ko">달빛 숲의 모험 (영어판)</div>
+        <div class="book-desc" data-lang="en">Luna follows a moonbeam into an enchanted forest, meeting Mochi the Moon Rabbit and a Star Deer.</div>
+        <div class="book-desc" data-lang="ko">루나가 달빛을 따라 마법의 숲에서 달 토끼 모찌와 별사슴을 만나요.</div>
+        <div class="book-moral" data-lang="en">🌟 "Magic is everywhere — if you're brave enough to follow it."</div>
+        <div class="book-moral" data-lang="ko">🌟 "용기 있게 따라가면 마법이 기다리고 있어요."</div>
+        <div class="book-meta"><span class="tag">Ages 4–7</span><span class="tag">8 pages</span><span class="tag">PDF</span><span class="tag">English</span></div>
+        <div class="book-btns">
+          <a href="https://yunslestories.gumroad.com/l/xudvvn" class="btn-sm btn-sm-g" target="_blank">🛒 Gumroad</a>
+          <a href="https://www.etsy.com/listing/4529347789" class="btn-sm btn-sm-e" target="_blank">🏪 Etsy</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book 8 KO -->
+    <div class="book-card">
+      <div class="book-cover book-cover-8ko">
+        <div class="book-num">8권</div>
+        <div class="book-lang lang-ko">KO</div>
+        <span>🌙🐰🦌</span>
+      </div>
+      <div class="book-body">
+        <div class="book-title">달빛 숲의 모험</div>
+        <div class="book-title-ko">Moonlight Forest Adventure (한국어판)</div>
+        <div class="book-desc" data-lang="en">Korean edition — Luna's magical night journey through the moonlit forest.</div>
+        <div class="book-desc" data-lang="ko">루나의 마법 같은 달빛 숲 여행 이야기 (한국어판).</div>
+        <div class="book-moral" data-lang="en">🌟 "용기 있게 따라가면 마법이 기다리고 있어요."</div>
+        <div class="book-moral" data-lang="ko">🌟 "용기 있게 따라가면 마법이 기다리고 있어요."</div>
+        <div class="book-meta"><span class="tag">4~7세</span><span class="tag">8 페이지</span><span class="tag">PDF</span><span class="tag">한국어</span></div>
+        <div class="book-btns">
+          <a href="https://yunslestories.gumroad.com/l/xudvvn" class="btn-sm btn-sm-g" target="_blank">🛒 Gumroad</a>
+          <a href="https://www.etsy.com/listing/4529347789" class="btn-sm btn-sm-e" target="_blank">🏪 Etsy</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Template -->
+    <div class="book-card">
+      <div class="book-cover book-cover-tpl">
+        <div class="book-lang lang-bi">EN + KO</div>
+        <span>📖✏️🎨</span>
+      </div>
+      <div class="book-body">
+        <div class="book-title">Editable Storybook Template</div>
+        <div class="book-title-ko">편집 가능 스토리북 템플릿</div>
+        <div class="book-desc" data-lang="en">Make your own storybook! Professional layout with cover, story pages, style guide. Bilingual EN + KO labels.</div>
+        <div class="book-desc" data-lang="ko">나만의 스토리북을 만들어요! 표지, 스토리 페이지, 스타일 가이드 포함. 영어/한국어 이중 언어.</div>
+        <div class="book-moral" data-lang="en">🎨 Perfect for creators, teachers &amp; parents</div>
+        <div class="book-moral" data-lang="ko">🎨 크리에이터, 선생님, 부모님께 완벽해요</div>
+        <div class="book-meta"><span class="tag">Editable</span><span class="tag">8 pages</span><span class="tag">EN+KO</span><span class="tag">Sell it!</span></div>
+        <div class="book-btns">
+          <a href="https://yunslestories.gumroad.com/l/vsbnm" class="btn-sm btn-sm-g" target="_blank">🛒 Gumroad</a>
+          <a href="https://www.etsy.com/listing/4529351569" class="btn-sm btn-sm-e" target="_blank">🏪 Etsy</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /books-grid -->
+</section>
+
+<!-- FEATURES -->
+<section class="section" style="background:white; padding-top:48px; padding-bottom:60px;">
+  <div class="section-title" data-lang="en">✨ Why You'll Love These Books</div>
+  <div class="section-title" data-lang="ko">✨ 이 책이 특별한 이유</div>
+  <div class="section-sub" data-lang="en">Everything parents and educators need in a digital storybook</div>
+  <div class="section-sub" data-lang="ko">부모님과 선생님이 원하는 모든 것</div>
+  <div class="features-grid">
+    <div class="feature"><div class="feature-icon">🎨</div><h3 data-lang="en">Watercolor Art Style</h3><h3 data-lang="ko">수채화 일러스트</h3><p data-lang="en">Beautiful SVG illustrations in a dreamy watercolor aesthetic — soft, warm, and magical.</p><p data-lang="ko">부드럽고 따뜻한 수채화 스타일의 아름다운 일러스트로 가득해요.</p></div>
+    <div class="feature"><div class="feature-icon">💡</div><h3 data-lang="en">Gentle Moral Each Book</h3><h3 data-lang="ko">책마다 따뜻한 교훈</h3><p data-lang="en">Kindness, courage, friendship, and embracing what makes you unique.</p><p data-lang="ko">친절함, 용기, 우정, 자신만의 특별함을 소중히 여기는 법을 배워요.</p></div>
+    <div class="feature"><div class="feature-icon">🌏</div><h3 data-lang="en">Bilingual EN + KO</h3><h3 data-lang="ko">영어 + 한국어</h3><p data-lang="en">Every book is available in separate English and Korean editions — great for bilingual families.</p><p data-lang="ko">모든 책이 영어판·한국어판으로 따로 제공돼요. 이중 언어 가정에 완벽해요.</p></div>
+    <div class="feature"><div class="feature-icon">🖨️</div><h3 data-lang="en">Print-Ready PDF</h3><h3 data-lang="ko">즉시 인쇄 가능 PDF</h3><p data-lang="en">A5 landscape format — print at home or at a copy shop for a real storybook experience.</p><p data-lang="ko">A5 가로 형식 — 집이나 복사점에서 바로 인쇄해서 진짜 책처럼 읽을 수 있어요.</p></div>
+    <div class="feature"><div class="feature-icon">⚡</div><h3 data-lang="en">Instant Download</h3><h3 data-lang="ko">즉시 다운로드</h3><p data-lang="en">Buy and get the PDF in seconds. No waiting, no shipping — just magical stories.</p><p data-lang="ko">구매 후 즉시 PDF를 받아요. 기다릴 필요 없이 바로 읽을 수 있어요.</p></div>
+    <div class="feature"><div class="feature-icon">👨‍👩‍👧</div><h3 data-lang="en">Ages 4–7</h3><h3 data-lang="ko">4~7세</h3><p data-lang="en">Short sentences, big illustrations, and simple vocabulary perfect for preschool and kindergarten.</p><p data-lang="ko">짧은 문장, 큰 그림, 쉬운 어휘로 유치원·초등 저학년에 딱 맞아요.</p></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how">
+  <div class="section-title" style="color:white;" data-lang="en">🛒 How to Get Your Books</div>
+  <div class="section-title" style="color:white;" data-lang="ko">🛒 책 구매 방법</div>
+  <div class="section-sub" style="color:rgba(255,255,255,0.65);" data-lang="en">Three simple steps to your new favourite bedtime stories</div>
+  <div class="section-sub" style="color:rgba(255,255,255,0.65);" data-lang="ko">좋아하는 잠자리 동화를 갖는 3가지 쉬운 방법</div>
+  <div class="steps">
+    <div class="step"><div class="step-icon">🛒</div><h3 data-lang="en">1. Choose & Buy</h3><h3 data-lang="ko">1. 선택 후 구매</h3><p data-lang="en">Pick your book(s) on Gumroad or Etsy. Single book or bundle — your choice!</p><p data-lang="ko">Gumroad 또는 Etsy에서 원하는 책을 골라요. 단권 또는 묶음 중 선택!</p></div>
+    <div class="step"><div class="step-icon">📥</div><h3 data-lang="en">2. Download PDF</h3><h3 data-lang="ko">2. PDF 다운로드</h3><p data-lang="en">Get your PDF instantly. Save to your device, tablet, or cloud.</p><p data-lang="ko">즉시 PDF를 다운받아요. 기기, 태블릿, 클라우드에 저장하세요.</p></div>
+    <div class="step"><div class="step-icon">📖</div><h3 data-lang="en">3. Read & Print</h3><h3 data-lang="ko">3. 읽기 &amp; 인쇄</h3><p data-lang="en">Read on screen or print at home for a cozy bedtime story experience.</p><p data-lang="ko">화면으로 읽거나, 집에서 인쇄해서 포근한 잠자리 동화로 즐기세요.</p></div>
+    <div class="step"><div class="step-icon">💝</div><h3 data-lang="en">4. Share the Magic</h3><h3 data-lang="ko">4. 마법을 나눠요</h3><p data-lang="en">Great as gifts! Bundle all 8 books for the perfect children's gift set.</p><p data-lang="ko">선물로도 완벽해요! 8권 전세트로 최고의 어린이 선물을 만들어요.</p></div>
+  </div>
+</section>
+
+<svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;background:#2d1a5e;margin-bottom:-1px;">
+  <path d="M0,20 C360,60 1080,-20 1440,20 L1440,0 L0,0 Z" fill="#faf7ff"/>
+</svg>
+
+<!-- PRICING -->
+<section class="section" style="padding-top:60px;">
+  <div class="section-title" data-lang="en">💰 Pricing</div>
+  <div class="section-title" data-lang="ko">💰 가격 안내</div>
+  <div class="section-sub" data-lang="en">Affordable magic for every family</div>
+  <div class="section-sub" data-lang="ko">모든 가정이 부담 없이 즐길 수 있는 마법</div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-icon">📖</div>
+      <div class="price-title" data-lang="en">Single Book</div>
+      <div class="price-title" data-lang="ko">단권</div>
+      <div class="price-amount">$4.99</div>
+      <div class="price-kr">₩ 5,900</div>
+      <ul class="price-list">
+        <li data-lang="en">1 storybook PDF</li><li data-lang="ko">스토리북 PDF 1권</li>
+        <li data-lang="en">English OR Korean</li><li data-lang="ko">영어 또는 한국어</li>
+        <li data-lang="en">Instant download</li><li data-lang="ko">즉시 다운로드</li>
+        <li data-lang="en">Print-ready A5</li><li data-lang="ko">A5 인쇄용</li>
+      </ul>
+      <a href="https://yunslestories.gumroad.com" class="btn btn-gumroad" style="display:block;text-align:center;font-size:14px;" target="_blank">🛒 <span data-lang="en">Buy Single</span><span data-lang="ko">단권 구매</span></a>
+    </div>
+    <div class="price-card featured">
+      <div class="price-label">⭐ BEST VALUE · 최고의 가치</div>
+      <div class="price-icon">📚</div>
+      <div class="price-title" data-lang="en">3-Book Bundle</div>
+      <div class="price-title" data-lang="ko">3권 묶음</div>
+      <div class="price-amount" style="color:white;">$11.99</div>
+      <div class="price-kr">₩ 13,900</div>
+      <ul class="price-list">
+        <li data-lang="en">Books 6, 7 &amp; 8</li><li data-lang="ko">6, 7, 8권</li>
+        <li data-lang="en">English OR Korean</li><li data-lang="ko">영어 또는 한국어</li>
+        <li data-lang="en">Save 20% vs singles</li><li data-lang="ko">단권 대비 20% 할인</li>
+        <li data-lang="en">Instant download</li><li data-lang="ko">즉시 다운로드</li>
+      </ul>
+      <a href="https://yunslestories.gumroad.com" class="btn" style="display:block;text-align:center;font-size:14px;background:white;color:var(--purple);font-weight:800;" target="_blank">🛒 <span data-lang="en">Buy Bundle</span><span data-lang="ko">묶음 구매</span></a>
+    </div>
+    <div class="price-card">
+      <div class="price-icon">🎨</div>
+      <div class="price-title" data-lang="en">Editable Template</div>
+      <div class="price-title" data-lang="ko">편집 템플릿</div>
+      <div class="price-amount">$6.99</div>
+      <div class="price-kr">₩ 8,900</div>
+      <ul class="price-list">
+        <li data-lang="en">8-page layout template</li><li data-lang="ko">8페이지 레이아웃 템플릿</li>
+        <li data-lang="en">Style guide included</li><li data-lang="ko">스타일 가이드 포함</li>
+        <li data-lang="en">EN + KO bilingual</li><li data-lang="ko">영어/한국어 이중 언어</li>
+        <li data-lang="en">Commercial use OK</li><li data-lang="ko">상업적 사용 가능</li>
+      </ul>
+      <a href="https://yunslestories.gumroad.com/l/vsbnm" class="btn btn-gumroad" style="display:block;text-align:center;font-size:14px;" target="_blank">🛒 <span data-lang="en">Get Template</span><span data-lang="ko">템플릿 구매</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🌈 Little Dreamers Studio</div>
+  <div style="margin-bottom:8px;">꿈꾸는 아이들 스튜디오</div>
+  <div>
+    <a href="https://yunslestories.gumroad.com" target="_blank">Gumroad</a> ·
+    <a href="https://www.etsy.com/shop/SangSooKimStudio" target="_blank">Etsy</a> ·
+    <a href="https://github.com" target="_blank">GitHub</a>
+  </div>
+  <div style="margin-top:12px;font-size:12px;color:rgba(255,255,255,0.4);">
+    © 2026 Little Dreamers Studio · All PDFs for personal and classroom use<br>
+    Watercolor fantasy storybooks for children ages 4–7
+  </div>
+</footer>
+
+<script>
+// Stars
+const starsEl = document.getElementById('stars');
+for(let i=0;i<60;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  s.style.left=Math.random()*100+'%';
+  s.style.top=Math.random()*100+'%';
+  s.style.animationDelay=Math.random()*4+'s';
+  s.style.animationDuration=(2+Math.random()*3)+'s';
+  s.style.opacity=Math.random()*0.7+0.1;
+  starsEl.appendChild(s);
+}
+
+// Language toggle
+let currentLang = 'en';
+function setLang(lang){
+  currentLang = lang;
+  document.body.className = lang === 'ko' ? 'ko' : '';
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(lang==='ko'?'한':'en'));
+  });
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{e.preventDefault();document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});});
+});
+</script>
+</body>
+</html>
